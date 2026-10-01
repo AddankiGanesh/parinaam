@@ -1,0 +1,143 @@
+import { NextRequest } from 'next/server';
+import { db } from '@/lib/db';
+import { getSessionUser } from '@/lib/auth';
+import { success, error, unauthorized, forbidden, serverError } from '@/lib/apiResponse';
+
+// GET /api/events — list events (public, with filters)
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const clubId = searchParams.get('club_id');
+    const category = searchParams.get('category');
+    const status = searchParams.get('status') || 'published';
+    const search = searchParams.get('search');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '20');
+    const offset = (page - 1) * limit;
+
+    let whereClause = 'WHERE e.status = $1';
+    const params: unknown[] = [status];
+    let paramIdx = 2;
+
+    if (clubId) {
+      whereClause += ` AND e.club_id = $${paramIdx}`;
+      params.push(clubId);
+      paramIdx++;
+    }
+    if (category) {
+      whereClause += ` AND e.category = $${paramIdx}`;
+      params.push(category);
+      paramIdx++;
+    }
+    if (search) {
+      whereClause += ` AND (e.name ILIKE $${paramIdx} OR e.tagline ILIKE $${paramIdx} OR e.short_description ILIKE $${paramIdx})`;
+      params.push(`%${search}%`);
+      paramIdx++;
+    }
+
+    const [eventsResult, countResult] = await Promise.all([
+      db.query(
+        `SELECT 
+          e.id, e.name, e.event_code, e.tagline, e.short_description,
+          e.category, e.tags, e.venue, e.date_start, e.date_end,
+          e.start_time, e.end_time, e.day_number, e.min_team_size,
+          e.max_team_size, e.capacity, e.enrolled, e.fee, e.prize_pool,
+          e.poster_url, e.status, e.registration_open, e.is_popular,
+          e.is_featured, e.created_at,
+          c.id as club_id, c.name as club_name, c.slug as club_slug, c.color as club_color
+         FROM events e
+         JOIN clubs c ON e.club_id = c.id
+         ${whereClause}
+         ORDER BY e.is_featured DESC, e.is_popular DESC, e.created_at DESC
+         LIMIT $${paramIdx} OFFSET $${paramIdx + 1}`,
+        [...params, limit, offset]
+      ),
+      db.query(
+        `SELECT COUNT(*) FROM events e ${whereClause}`,
+        params
+      )
+    ]);
+
+    return success({
+      events: eventsResult.rows,
+      pagination: {
+        total: parseInt(countResult.rows[0].count),
+        page,
+        limit,
+        totalPages: Math.ceil(parseInt(countResult.rows[0].count) / limit),
+      },
+    });
+  } catch (err) {
+    console.error('Get events error:', err);
+    return serverError();
+  }
+}
+
+// POST /api/events — create event (club admin or super admin)
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getSessionUser(req);
+    if (!session) return unauthorized();
+    if (session.role !== 'club_admin' && session.role !== 'super_admin') {
+      return forbidden('Only club admins and super admins can create events');
+    }
+
+    const body = await req.json();
+    const {
+      name, tagline, short_description, full_description,
+      category, tags, venue, date_start, date_end,
+      start_time, end_time, day_number,
+      min_team_size = 1, max_team_size = 1,
+      capacity, fee = 0, prize_pool, eligibility,
+      rules = [], rounds = [], coordinators = [],
+      poster_url, rulebook_url, status = 'draft',
+      registration_open = false, is_popular = false,
+      club_id: bodyClubId,
+    } = body;
+
+    if (!name) return error('Event name is required');
+
+    // Club admin can only create for their club
+    const clubId = session.role === 'super_admin' ? bodyClubId : session.clubId;
+    if (!clubId) return error('Club ID is required');
+
+    // Generate event code
+    const clubSlugResult = await db.query('SELECT slug FROM clubs WHERE id = $1', [clubId]);
+    if (clubSlugResult.rows.length === 0) return error('Club not found', 404);
+    
+    const slug = clubSlugResult.rows[0].slug.toUpperCase().slice(0, 4);
+    const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const eventCode = `${slug}-${rand}`;
+
+    const result = await db.query(
+      `INSERT INTO events (
+        club_id, created_by, name, event_code, tagline, short_description,
+        full_description, category, tags, venue, date_start, date_end,
+        start_time, end_time, day_number, min_team_size, max_team_size,
+        capacity, fee, prize_pool, eligibility, rules, rounds,
+        coordinators, poster_url, rulebook_url, status,
+        registration_open, is_popular
+      ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,
+        $16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29
+      ) RETURNING *`,
+      [
+        clubId, session.userId, name, eventCode, tagline,
+        short_description, full_description, category,
+        tags ? JSON.stringify(tags) : null,
+        venue, date_start, date_end, start_time, end_time, day_number,
+        min_team_size, max_team_size, capacity, fee, prize_pool,
+        eligibility,
+        JSON.stringify(rules),
+        JSON.stringify(rounds),
+        JSON.stringify(coordinators),
+        poster_url, rulebook_url, status, registration_open, is_popular
+      ]
+    );
+
+    return success({ event: result.rows[0] }, 201);
+  } catch (err) {
+    console.error('Create event error:', err);
+    return serverError();
+  }
+}

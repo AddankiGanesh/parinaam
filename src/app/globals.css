@@ -1,0 +1,142 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    border-color: var(--border, #231435);
+  }
+  
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+  
+  body {
+    background-color: var(--background, #05030a);
+    color: var(--foreground, #f1f5f9);
+    font-family: var(--font-sans, 'Inter', system-ui, sans-serif);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-pixel, 'Pixelify Sans', 'Outfit', sans-serif);
+    letter-spacing: 0.04em;
+  }
+}
+
+:root {
+  --background: #05030a;
+  --foreground: #f1f5f9;
+  
+  --card: #0b0716;
+  --card-foreground: #f8fafc;
+  
+  --popover: #0e091d;
+  --popover-foreground: #f8fafc;
+  
+  --primary: #d946ef;
+  --primary-foreground: #ffffff;
+  --primary-hover: #c084fc;
+  
+  --secondary: #22123b;
+  --secondary-foreground: #f8fafc;
+  
+  --accent: #f59e0b;
+  --accent-foreground: #ffffff;
+  
+  --muted: #231435;
+  --muted-foreground: #a792c9;
+  
+  --border: #231435;
+  --input: #1e112a;
+  --ring: #d946ef;
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Pixelify Sans', 'Outfit', sans-serif;
+  --font-pixel: 'Pixelify Sans', 'Silkscreen', 'JetBrains Mono', monospace;
+  --font-devanagari: 'Anek Devanagari', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #05030a;
+}
+::-webkit-scrollbar-thumb {
+  background: #231435;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #d946ef;
+}
+
+/* Ticket Notch Pattern for Digital Pass */
+.ticket-notch-left {
+  position: relative;
+}
+.ticket-notch-left::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-color: var(--background, #05030a);
+  border-radius: 50%;
+}
+
+.ticket-notch-right {
+  position: relative;
+}
+.ticket-notch-right::after {
+  content: '';
+  position: absolute;
+  right: -12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  background-color: var(--background, #05030a);
+  border-radius: 50%;
+}
+
+/* Mood Indigo Pixel Glow Card */
+.mi-glow-card {
+  position: relative;
+  background: linear-gradient(145deg, rgba(14, 9, 29, 0.95), rgba(11, 7, 22, 0.98));
+  border: 1px solid rgba(217, 70, 239, 0.3);
+  transition: all 0.25s ease-in-out;
+}
+.mi-glow-card:hover {
+  border-color: rgba(217, 70, 239, 0.8);
+  box-shadow: 0 10px 35px -10px rgba(217, 70, 239, 0.5);
+}
+
+/* Magenta / Purple Pixel Glow Text */
+.pixel-magenta-glow {
+  font-family: var(--font-pixel, 'Pixelify Sans', monospace);
+  color: #ff00ff;
+  text-shadow: 0 0 12px rgba(255, 0, 255, 0.7), 0 0 24px rgba(217, 70, 239, 0.4);
+}
+
+.purple-logo-glow {
+  filter: drop-shadow(0 0 18px rgba(217, 70, 239, 0.7));
+}
+
+.purple-hero-glow {
+  filter: drop-shadow(0 0 40px rgba(217, 70, 239, 0.6));
+}
+
+/* Grid background pattern */
+.fest-grid-bg {
+  background-image: linear-gradient(to right, rgba(217, 70, 239, 0.06) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(217, 70, 239, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}

@@ -1,0 +1,151 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { FEST_CONFIG } from '../../data/festData';
+import { MapPin, Mail, Phone, ExternalLink, ShieldCheck } from 'lucide-react';
+
+export const Footer = () => {
+  return (
+    <footer className="bg-[#05080f] border-t border-slate-800 text-slate-400 pt-16 pb-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-slate-800">
+          
+          {/* Brand Column */}
+          <div className="lg:col-span-2 space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center font-display font-black text-lg text-white">
+                P
+              </div>
+              <span className="font-display font-extrabold text-2xl tracking-tight text-white">
+                {FEST_CONFIG.name} <span className="text-primary font-mono">{FEST_CONFIG.edition}</span>
+              </span>
+            </div>
+            <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
+              {FEST_CONFIG.subtitle}. Experience three days of intense competitive coding, robotics combat, battle of bands, hackathons, and cultural celebrations.
+            </p>
+            <div className="flex items-center gap-2 pt-2">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+                <MapPin className="w-3.5 h-3.5 text-primary" />
+                <span>Ettimadai, Coimbatore</span>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Verified Fest Portal</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Links */}
+          <div>
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider mb-4">
+              Quick Links
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link href="/events" className="hover:text-white transition-colors">
+                  All Events & Competitions
+                </Link>
+              </li>
+              <li>
+                <Link href="/schedule" className="hover:text-white transition-colors">
+                  Fest Schedule & Timeline
+                </Link>
+              </li>
+              <li>
+                <Link href="/register" className="hover:text-white transition-colors text-primary font-medium">
+                  Register For Pass
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" className="hover:text-white transition-colors">
+                  Participant Portal
+                </Link>
+              </li>
+              <li>
+                <Link href="/organizer/scan" className="hover:text-white transition-colors">
+                  Organizer QR Scanner
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Categories */}
+          <div>
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider mb-4">
+              Event Clusters
+            </h4>
+            <ul className="space-y-2.5 text-sm">
+              <li>
+                <Link href="/events?category=Coding+%26+Hackathon" className="hover:text-white transition-colors">
+                  HackArena & CodeStorm
+                </Link>
+              </li>
+              <li>
+                <Link href="/events?category=Robotics" className="hover:text-white transition-colors">
+                  RoboWars & Combat Arena
+                </Link>
+              </li>
+              <li>
+                <Link href="/events?category=Cultural" className="hover:text-white transition-colors">
+                  Battle of Bands & Dance
+                </Link>
+              </li>
+              <li>
+                <Link href="/events?category=Gaming" className="hover:text-white transition-colors">
+                  Valorant & BGMI LAN
+                </Link>
+              </li>
+              <li>
+                <Link href="/events?category=Workshops" className="hover:text-white transition-colors">
+                  GenAI & Robotics Masterclasses
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Contact & Support */}
+          <div>
+            <h4 className="font-display font-bold text-white text-sm uppercase tracking-wider mb-4">
+              Support & Desk
+            </h4>
+            <div className="space-y-3 text-sm">
+              <p className="flex items-center gap-2 text-slate-300">
+                <Mail className="w-4 h-4 text-primary shrink-0" />
+                <span className="font-mono text-xs">{FEST_CONFIG.contactEmail}</span>
+              </p>
+              <p className="flex items-center gap-2 text-slate-300">
+                <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-mono text-xs">{FEST_CONFIG.helplinePhone}</span>
+              </p>
+              <p className="text-xs text-slate-400 leading-normal pt-1">
+                Student Registration Desk open 8:30 AM – 8:00 PM during festival days.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div className="flex items-center gap-4">
+            <span>© 2026 {FEST_CONFIG.name} Fest Team. All rights reserved.</span>
+            <span>•</span>
+            <span className="font-mono">{FEST_CONFIG.collegeName}</span>
+          </div>
+
+          <div className="flex items-center gap-6">
+            <a href="#" className="hover:text-slate-300 transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" className="hover:text-slate-300 transition-colors">
+              Festival Guidelines
+            </a>
+            <span className="font-mono text-slate-400">
+              Built by <span className="text-white">Amrita Web Team</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
