@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       department,
       year_of_study,
       city,
+      id_card_url,
     } = body;
 
     // Validate required fields
@@ -74,9 +75,9 @@ export async function POST(req: NextRequest) {
         email, password_hash, full_name, phone,
         college_name, is_amrita_student, roll_number, department,
         year_of_study, city, verification_status, qr_token,
-        email_verify_token, email_verified, platform_fee_paid
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
-      RETURNING id, email, full_name, role, is_amrita_student, verification_status, qr_token, platform_fee_paid`,
+        email_verify_token, email_verified, platform_fee_paid, id_card_url
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)
+      RETURNING id, email, full_name, role, is_amrita_student, verification_status, qr_token, platform_fee_paid, id_card_url`,
       [
         emailLower,
         passwordHash,
@@ -93,6 +94,7 @@ export async function POST(req: NextRequest) {
         emailVerifyToken,
         true, // email_verified
         isAmritaStudent, // Amrita students have free pass
+        id_card_url || null,
       ]
     );
 

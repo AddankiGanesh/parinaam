@@ -37,6 +37,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [idCardFile, setIdCardFile] = useState<File | null>(null);
+  const [idCardPreview, setIdCardPreview] = useState<string>('');
   const [registrationDone, setRegistrationDone] = useState(false);
   const [needsIdUpload, setNeedsIdUpload] = useState(false);
 
@@ -52,6 +53,7 @@ export default function RegisterPage() {
     department: '',
     year_of_study: '',
     city: '',
+    id_card_url: '',
   });
 
   React.useEffect(() => {
@@ -66,6 +68,24 @@ export default function RegisterPage() {
       student_type: type,
       college_name: type === 'amrita' ? 'Amrita Vishwa Vidyapeetham, Amaravati' : '',
     }));
+  };
+
+  const handleIdCardSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError('ID card image size must be less than 5MB');
+      return;
+    }
+    setError('');
+    setIdCardFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setIdCardPreview(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const isAmritaSelected = studentType === 'amrita';
@@ -113,6 +133,12 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!isAmritaSelected && !idCardPreview && !idCardFile) {
+      setError('Please upload your college/university ID card photo before submitting');
+      return;
+    }
+
     setLoading(true);
 
     const { confirmPassword, ...data } = form;
@@ -121,6 +147,7 @@ export default function RegisterPage() {
       phone: (data.phone || '').replace(/\D/g, '').slice(0, 10),
       student_type: studentType,
       college_name: isAmritaSelected ? 'Amrita Vishwa Vidyapeetham, Amaravati' : data.college_name,
+      id_card_url: idCardPreview || undefined,
     });
 
     if (result.success) {
@@ -130,20 +157,6 @@ export default function RegisterPage() {
       setError(result.error || 'Registration failed');
     }
     setLoading(false);
-  };
-
-  const handleIdUpload = async () => {
-    if (!idCardFile) return;
-    setLoading(true);
-    const formData = new FormData();
-    formData.append('id_card', idCardFile);
-    try {
-      await fetch('/api/auth/upload-id', { method: 'POST', body: formData });
-    } catch {
-      /* continue even if offline */
-    }
-    setLoading(false);
-    router.push('/dashboard');
   };
 
   if (registrationDone) {
@@ -544,6 +557,70 @@ export default function RegisterPage() {
                     </div>
                   </div>
 
+                  {/* External student ID card upload inside Step 2 */}
+                  {!isAmritaSelected && (
+                    <div className="space-y-3 pt-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-xs font-semibold text-slate-200">
+                          Upload College / University ID Card Photo <span className="text-amber-400">*</span>
+                        </label>
+                        <span className="text-[10px] text-slate-400">JPG, PNG (Max 5MB)</span>
+                      </div>
+
+                      {idCardPreview ? (
+                        <div className="relative rounded-2xl border border-purple-500/40 bg-purple-950/20 p-3 overflow-hidden">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={idCardPreview}
+                              alt="ID Preview"
+                              className="w-20 h-16 object-cover rounded-xl border border-white/20 bg-black/40 shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold text-white truncate">
+                                {idCardFile?.name || 'College ID Card Selected'}
+                              </p>
+                              <p className="text-[11px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                                <CheckCircle size={12} /> Ready for verification review
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIdCardFile(null);
+                                  setIdCardPreview('');
+                                }}
+                                className="text-[11px] text-purple-300 hover:text-purple-200 underline mt-1 block"
+                              >
+                                Replace Photo
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => document.getElementById('register-id-card-upload')?.click()}
+                          className="border-2 border-dashed border-white/20 hover:border-purple-500/50 rounded-2xl p-5 text-center cursor-pointer transition-all bg-white/[0.02] hover:bg-white/[0.04]"
+                        >
+                          <div className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-300 flex items-center justify-center mx-auto mb-2">
+                            <Upload size={18} />
+                          </div>
+                          <p className="text-xs font-medium text-slate-200">
+                            Click to upload college ID card photo
+                          </p>
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Clear front-side photo or scan for Super Admin verification
+                          </p>
+                          <input
+                            id="register-id-card-upload"
+                            type="file"
+                            accept="image/png,image/jpeg,image/jpg,image/webp"
+                            className="hidden"
+                            onChange={handleIdCardSelect}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className={`p-3 rounded-xl border text-xs leading-relaxed ${
                     isAmritaSelected
                       ? 'bg-purple-500/10 border-purple-500/20 text-purple-300'
@@ -552,12 +629,12 @@ export default function RegisterPage() {
                     {isAmritaSelected ? (
                       <div className="flex items-center gap-2">
                         <ShieldCheck size={16} className="text-purple-400 shrink-0" />
-                        <span>Your Amrita email will be instantly verified for festival access.</span>
+                        <span>Amrita student profile submitted for verification. Free entry passes apply.</span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-2">
                         <IdCard size={16} className="text-amber-400 shrink-0" />
-                        <span>As an external participant, you will upload your college ID card right after this step.</span>
+                        <span>Your uploaded ID card and details will be reviewed by Super Admin for event registration approval.</span>
                       </div>
                     )}
                   </div>

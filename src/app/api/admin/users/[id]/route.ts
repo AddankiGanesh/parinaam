@@ -121,7 +121,9 @@ export async function DELETE(
     }
 
     // Cascade cleanup
-    await db.query(`DELETE FROM attendance WHERE user_id = $1`, [id]);
+    await db.query(`UPDATE events SET created_by = $1 WHERE created_by = $2`, [session.userId, id]);
+    await db.query(`UPDATE users SET verified_by = NULL WHERE verified_by = $1`, [id]);
+    await db.query(`DELETE FROM attendance WHERE user_id = $1 OR scanned_by = $1`, [id]);
     await db.query(`DELETE FROM registrations WHERE user_id = $1`, [id]);
     await db.query(`DELETE FROM payments WHERE user_id = $1`, [id]);
     await db.query(`DELETE FROM users WHERE id = $1`, [id]);
