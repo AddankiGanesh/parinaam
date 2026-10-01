@@ -491,25 +491,32 @@ export default function RegisterPage() {
 
                   {/* Department & Year */}
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Department / Branch" icon={null}>
-                      <input
-                        type="text"
-                        placeholder="e.g. CSE, ECE, AI..."
+                    <Field label="Branch *" icon={null}>
+                      <select
                         value={form.department}
                         onChange={e => set('department', e.target.value)}
+                        required
                         className={inputCls}
-                      />
+                      >
+                        <option value="">Select Branch</option>
+                        {['CSE', 'CSE-AIE', 'AIDS', 'CCE', 'ECE', 'QUANTUM'].map(b => (
+                          <option key={b} value={b} className="bg-[#0e0b1a] text-slate-100">
+                            {b}
+                          </option>
+                        ))}
+                      </select>
                     </Field>
-                    <Field label="Year of Study" icon={null}>
+                    <Field label="Year of Study *" icon={null}>
                       <select
                         value={form.year_of_study}
                         onChange={e => set('year_of_study', e.target.value)}
+                        required
                         className={inputCls}
                       >
                         <option value="">Select Year</option>
-                        {['1st Year', '2nd Year', '3rd Year', '4th Year', 'PG - 1st Year', 'PG - 2nd Year', 'PhD / Research'].map(y => (
-                          <option key={y} value={y} className="bg-slate-900 text-slate-100">
-                            {y}
+                        {['1', '2', '3', '4'].map(y => (
+                          <option key={y} value={y} className="bg-[#0e0b1a] text-slate-100">
+                            Year {y}
                           </option>
                         ))}
                       </select>

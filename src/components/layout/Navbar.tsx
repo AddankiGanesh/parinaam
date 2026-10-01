@@ -103,26 +103,45 @@ export const Navbar = () => {
                 </button>
 
                 {userMenuOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-[#0e0b1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50">
-                    <div className="px-4 py-3 border-b border-white/10">
+                  <div className="absolute right-0 top-full mt-2 w-56 bg-[#0e0b1a] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-50 divide-y divide-white/5">
+                    <div className="px-4 py-3">
                       <p className="text-white text-sm font-semibold truncate">{user.full_name || user.email}</p>
                       <p className="text-slate-500 text-xs truncate">{user.email}</p>
-                      <span className={`text-xs px-2 py-0.5 rounded-full mt-1 inline-block ${
-                        user.role === 'super_admin' ? 'bg-red-500/20 text-red-300' :
-                        user.role === 'club_admin' ? 'bg-blue-500/20 text-blue-300' :
-                        'bg-purple-500/20 text-purple-300'
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full mt-1.5 inline-block font-medium ${
+                        user.role === 'super_admin' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
+                        user.role === 'club_admin' ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30' :
+                        'bg-purple-500/20 text-purple-300 border border-purple-500/30'
                       }`}>
-                        {user.role === 'super_admin' ? 'Super Admin' : user.role === 'club_admin' ? 'Club Admin' : 'Student'}
+                        {user.role === 'super_admin' ? 'Super Admin HQ' : user.role === 'club_admin' ? `${user.club_name || 'Club'} Admin` : (user.is_amrita_student ? 'Amrita Student' : 'External Student')}
                       </span>
                     </div>
-                    <Link href={dashboardHref} onClick={() => setUserMenuOpen(false)}
-                      className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
-                      <DashIcon size={15} className="text-purple-400" /> {dashboardLabel}
-                    </Link>
-                    <button onClick={() => { setUserMenuOpen(false); logout(); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 text-sm transition-colors">
-                      <LogOut size={15} /> Sign out
-                    </button>
+
+                    <div className="py-1">
+                      <Link href={dashboardHref} onClick={() => setUserMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                        <DashIcon size={15} className="text-purple-400" /> {dashboardLabel}
+                      </Link>
+
+                      {user.role === 'student' && (
+                        <>
+                          <Link href="/dashboard/pass" onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                            <span className="text-emerald-400 text-xs font-bold">QR</span> My Fest Pass
+                          </Link>
+                          <Link href="/dashboard/profile" onClick={() => setUserMenuOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                            <User size={15} className="text-slate-400" /> Profile Settings
+                          </Link>
+                        </>
+                      )}
+                    </div>
+
+                    <div className="py-1">
+                      <button onClick={() => { setUserMenuOpen(false); logout(); }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-red-400 hover:text-red-300 hover:bg-red-500/10 text-sm transition-colors">
+                        <LogOut size={15} /> Sign out
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

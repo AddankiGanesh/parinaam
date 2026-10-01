@@ -25,6 +25,10 @@ function PaymentContent() {
 
   useEffect(() => {
     if (!user) return;
+    if (user.is_amrita_student && type === 'platform_fee') {
+      router.push('/dashboard/pass');
+      return;
+    }
     if (type === 'platform_fee') {
       // Fetch platform fee from config
       fetch('/api/payments/create-order', {
@@ -32,9 +36,14 @@ function PaymentContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'platform_fee' }),
       }).then(r => r.json()).then(d => {
-        if (d.success) setInfo({ amount: d.data.amount / 100, description: d.data.description });
-        else if (d.error?.includes('already paid')) {
-          router.push('/dashboard');
+        if (d.success) {
+          if (d.data.is_free) {
+            router.push('/dashboard/pass');
+          } else {
+            setInfo({ amount: d.data.amount / 100, description: d.data.description });
+          }
+        } else if (d.error?.includes('already paid')) {
+          router.push('/dashboard/pass');
         }
       }).finally(() => setLoading(false));
     } else if (eventId) {

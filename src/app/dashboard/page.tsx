@@ -61,7 +61,7 @@ export default function DashboardPage() {
         </div>
       );
     }
-    if (!user.platform_fee_paid) {
+    if (!user.platform_fee_paid && !user.is_amrita_student) {
       return (
         <div className="mb-6 flex items-center gap-3 bg-purple-500/10 border border-purple-500/30 rounded-xl px-4 py-3">
           <CreditCard size={18} className="text-purple-400 shrink-0" />

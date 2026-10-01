@@ -138,7 +138,6 @@ export default function ProfilePage() {
             { key:'full_name',    label:'Full Name',       icon:<User size={14}/>,         placeholder:'As on college ID' },
             { key:'phone',        label:'Phone Number',    icon:<Phone size={14}/>,        placeholder:'+91 9876543210' },
             { key:'college_name', label:'College Name',    icon:<Building2 size={14}/>,    placeholder:'Institution name', disabled: user.is_amrita_student },
-            { key:'department',   label:'Department',      icon:<GraduationCap size={14}/>,placeholder:'CSE, ECE, MBA…' },
             { key:'roll_number',  label:'Roll Number',     icon:<GraduationCap size={14}/>,placeholder:'Your roll/reg number' },
             { key:'city',         label:'City',            icon:<MapPin size={14}/>,       placeholder:'Your city' },
           ].map(f => (
@@ -157,13 +156,34 @@ export default function ProfilePage() {
             </div>
           ))}
 
-          <div>
-            <label className="text-xs font-medium text-slate-400 block mb-1.5">Year of Study</label>
-            <select value={form.year_of_study} onChange={e => setForm(p => ({...p, year_of_study: e.target.value}))}
-              className="w-full bg-[#0e0b1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
-              <option value="">Select year</option>
-              {['1st','2nd','3rd','4th','PG-1st','PG-2nd','PhD'].map(y=><option key={y} value={y}>{y}</option>)}
-            </select>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-slate-400 block mb-1.5">Branch</label>
+              <select
+                value={form.department}
+                onChange={e => setForm(p => ({ ...p, department: e.target.value }))}
+                className="w-full bg-[#0e0b1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="">Select Branch</option>
+                {['CSE', 'CSE-AIE', 'AIDS', 'CCE', 'ECE', 'QUANTUM'].map(b => (
+                  <option key={b} value={b} className="bg-[#0e0b1a] text-slate-100">{b}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-slate-400 block mb-1.5">Year of Study</label>
+              <select
+                value={form.year_of_study}
+                onChange={e => setForm(p => ({ ...p, year_of_study: e.target.value }))}
+                className="w-full bg-[#0e0b1a] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500"
+              >
+                <option value="">Select Year</option>
+                {['1', '2', '3', '4'].map(y => (
+                  <option key={y} value={y} className="bg-[#0e0b1a] text-slate-100">Year {y}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <button type="submit" disabled={saving}

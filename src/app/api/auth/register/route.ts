@@ -69,8 +69,8 @@ export async function POST(req: NextRequest) {
         email, password_hash, full_name, phone,
         college_name, is_amrita_student, roll_number, department,
         year_of_study, city, verification_status, qr_token,
-        email_verify_token, email_verified
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)
+        email_verify_token, email_verified, platform_fee_paid
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)
       RETURNING id, email, full_name, role, is_amrita_student, verification_status, qr_token, platform_fee_paid`,
       [
         emailLower,
@@ -87,6 +87,7 @@ export async function POST(req: NextRequest) {
         qrToken,
         emailVerifyToken,
         isAmritaStudent, // Amrita students auto email-verified
+        isAmritaStudent, // Amrita students need not pay any amount (free delegate pass)
       ]
     );
 

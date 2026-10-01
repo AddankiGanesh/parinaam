@@ -13,19 +13,41 @@ export async function GET(req: NextRequest) {
     const [
       usersCount,
       pendingVerification,
+      amritaCount,
+      externalCount,
       totalEvents,
       totalRegistrations,
       confirmedRegistrations,
       totalRevenue,
+      checkinsCount,
+      branchStats,
+      yearStats,
       clubStats,
       recentRegistrations,
     ] = await Promise.all([
       db.query(`SELECT COUNT(*) FROM users WHERE role = 'student'`),
       db.query(`SELECT COUNT(*) FROM users WHERE verification_status = 'pending' AND role = 'student'`),
+      db.query(`SELECT COUNT(*) FROM users WHERE role = 'student' AND is_amrita_student = true`),
+      db.query(`SELECT COUNT(*) FROM users WHERE role = 'student' AND is_amrita_student = false`),
       db.query(`SELECT COUNT(*) FROM events WHERE status != 'cancelled'`),
       db.query(`SELECT COUNT(*) FROM registrations`),
       db.query(`SELECT COUNT(*) FROM registrations WHERE status = 'CONFIRMED'`),
       db.query(`SELECT COALESCE(SUM(amount), 0) as total FROM payments WHERE status = 'paid'`),
+      db.query(`SELECT COUNT(*) FROM attendance`),
+      db.query(`
+        SELECT department, COUNT(*) as count 
+        FROM users 
+        WHERE role = 'student' AND department IS NOT NULL AND department != ''
+        GROUP BY department 
+        ORDER BY count DESC
+      `),
+      db.query(`
+        SELECT year_of_study, COUNT(*) as count 
+        FROM users 
+        WHERE role = 'student' AND year_of_study IS NOT NULL AND year_of_study != ''
+        GROUP BY year_of_study 
+        ORDER BY year_of_study ASC
+      `),
       db.query(`
         SELECT c.name, c.color, c.slug,
           COUNT(e.id) FILTER (WHERE e.status = 'published') as published_events,
@@ -38,7 +60,7 @@ export async function GET(req: NextRequest) {
       `),
       db.query(`
         SELECT r.id, r.registered_at, r.status,
-          u.full_name, u.college_name,
+          u.full_name, u.college_name, u.is_amrita_student, u.department, u.year_of_study,
           e.name as event_name,
           c.name as club_name
         FROM registrations r
@@ -53,13 +75,18 @@ export async function GET(req: NextRequest) {
     return success({
       overview: {
         total_students: parseInt(usersCount.rows[0]?.count || '0'),
+        amrita_students: parseInt(amritaCount.rows[0]?.count || '0'),
+        external_students: parseInt(externalCount.rows[0]?.count || '0'),
         pending_verification: parseInt(pendingVerification.rows[0]?.count || '0'),
         total_events: parseInt(totalEvents.rows[0]?.count || '0'),
         total_registrations: parseInt(totalRegistrations.rows[0]?.count || '0'),
         confirmed_registrations: parseInt(confirmedRegistrations.rows[0]?.count || '0'),
+        total_checkins: parseInt(checkinsCount.rows[0]?.count || '0'),
         total_revenue_paise: parseInt(totalRevenue.rows[0]?.total || '0'),
         total_revenue_inr: Math.round(parseInt(totalRevenue.rows[0]?.total || '0') / 100),
       },
+      branch_stats: branchStats.rows,
+      year_stats: yearStats.rows,
       club_stats: clubStats.rows,
       recent_registrations: recentRegistrations.rows,
     });

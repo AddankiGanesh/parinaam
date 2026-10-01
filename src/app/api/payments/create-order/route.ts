@@ -26,12 +26,23 @@ export async function POST(req: NextRequest) {
       amount = parseInt(configResult.rows[0]?.value || '99') * 100; // in paise
       description = 'Parinaam 2026 Platform Registration Fee';
 
-      // Check if already paid
+      // Check if Amrita student or already paid
       const userResult = await db.query(
-        `SELECT platform_fee_paid FROM users WHERE id = $1`,
+        `SELECT is_amrita_student, platform_fee_paid FROM users WHERE id = $1`,
         [session.userId]
       );
-      if (userResult.rows[0]?.platform_fee_paid) {
+      const userRow = userResult.rows[0];
+      if (userRow?.is_amrita_student) {
+        await db.query(`UPDATE users SET platform_fee_paid = true WHERE id = $1`, [session.userId]);
+        return success({
+          order_id: `free_amrita_${Date.now()}`,
+          amount: 0,
+          currency: 'INR',
+          description: 'Complimentary Amrita Student Pass',
+          is_free: true,
+        });
+      }
+      if (userRow?.platform_fee_paid) {
         return error('Platform fee already paid', 409);
       }
     } else if (type === 'event_fee') {
