@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 concurrency:
@@ -14,43 +11,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # ------------------------------------------------------------
-  # 1. CI: Validate Types, Lint, and Build Application
-  # ------------------------------------------------------------
-  build-and-test:
-    name: 🔨 Build & Validate Next.js
-    runs-on: ubuntu-latest
-    env:
-      CI: "false"
-      NEXT_TELEMETRY_DISABLED: 1
-      NODE_ENV: production
-      DATABASE_URL: ${{ secrets.DATABASE_URL || 'postgresql://postgres:test@localhost:5432/parinaam' }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET || 'parinaam_super_secure_jwt_secret_key_2026_fest' }}
-    steps:
-      - name: 📥 Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: 🟢 Setup Node.js 20.x
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: 📦 Install Dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: 🏗️ Run Next.js Build
-        run: npm run build
-
-  # ------------------------------------------------------------
-  # 2. CD: Deploy to AWS EC2 (parinaam.online)
-  # ------------------------------------------------------------
   deploy:
-    name: 🚀 Deploy to AWS EC2
-    needs: build-and-test
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    name: 🚀 Deploy to AWS EC2 (parinaam.online)
     runs-on: ubuntu-latest
     steps:
-      - name: 📡 Trigger Remote Deployment via SSH
+      - name: 📡 Deploy Latest Code to AWS EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST || '13.63.149.152' }}
@@ -58,28 +23,28 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT || 22 }}
           script_stop: true
-          command_timeout: 15m
+          command_timeout: 20m
           script: |
             echo "🚀 [CI/CD] Starting automated deployment on EC2..."
             
-            # Navigate to project directory
+            # Navigate to production directory
             cd /var/www/parinaam || exit 1
             
-            # Fetch latest commits from main
-            echo "📥 [CI/CD] Pulling latest changes from GitHub main..."
+            # Pull latest changes from GitHub main
+            echo "📥 [CI/CD] Pulling latest code from GitHub main..."
             git fetch origin main
             git reset --hard origin/main
             
-            # Install production & build dependencies
+            # Install any new dependencies
             echo "📦 [CI/CD] Installing dependencies..."
             npm install --production=false
             
-            # Build Next.js application
+            # Build production Next.js bundle
             echo "🏗️ [CI/CD] Building Next.js application..."
             npm run build
             
-            # Reload PM2 application with zero downtime
-            echo "🔄 [CI/CD] Restarting PM2 process (parinaam-web)..."
+            # Zero-downtime PM2 restart
+            echo "🔄 [CI/CD] Reloading PM2 process..."
             if npx pm2 describe parinaam-web > /dev/null 2>&1; then
               npx pm2 restart parinaam-web --update-env
             else
@@ -87,4 +52,4 @@ jobs:
               npx pm2 save
             fi
             
-            echo "✅ [CI/CD] Deployment to https://parinaam.online completed successfully!"
+            echo "✨ [CI/CD] Deployment to https://parinaam.online completed successfully!"
