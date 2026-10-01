@@ -50,7 +50,7 @@ export const Navbar = () => {
         { name: 'SCHEDULE', href: '/schedule' },
         { name: 'EVENTS', href: '/events' },
         { name: 'GALLERY', href: '/#gallery' },
-        { name: 'SPONSORS', href: '/#sponsors' },
+        { name: 'SPONSORS', href: '/sponsor' },
       ];
 
   const dashboardHref =
