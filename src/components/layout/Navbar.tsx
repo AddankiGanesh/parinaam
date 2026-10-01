@@ -33,7 +33,6 @@ export const Navbar = () => {
           { name: 'MY PASS', href: '/dashboard/pass' },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
-          { name: 'PRONITES', href: '/pronites' },
         ]
       : user.role === 'super_admin'
       ? [
@@ -50,7 +49,6 @@ export const Navbar = () => {
     : [
         { name: 'SCHEDULE', href: '/schedule' },
         { name: 'EVENTS', href: '/events' },
-        { name: 'PRONITES', href: '/pronites' },
         { name: 'GALLERY', href: '/#gallery' },
         { name: 'SPONSORS', href: '/#sponsors' },
       ];

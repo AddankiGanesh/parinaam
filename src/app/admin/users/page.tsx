@@ -645,7 +645,11 @@ export default function AdminUsersPage() {
 
                       {/* Pass Status */}
                       <td className="px-4 py-3.5">
-                        {u.is_amrita_student ? (
+                        {u.verification_status !== 'verified' ? (
+                          <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                            Pending Approval
+                          </span>
+                        ) : u.is_amrita_student ? (
                           <span className="text-[11px] font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">
                             Free Amrita Pass
                           </span>

@@ -55,8 +55,11 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanPhone = (phone || '').replace(/\D/g, '').slice(0, 10);
-    if (cleanPhone && cleanPhone.length !== 10) {
+    if (!cleanPhone || cleanPhone.length !== 10) {
       return error('Phone number must be exactly 10 digits');
+    }
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return error('Phone number must start with 6, 7, 8, or 9 (excluding +91)');
     }
 
     // Hash password
@@ -69,7 +72,7 @@ export async function POST(req: NextRequest) {
     const verificationStatus = 'pending';
     const emailVerifyToken = uuidv4();
 
-    // Insert user
+    // Insert user (platform_fee_paid starts as false until Super Admin approves)
     const result = await db.query(
       `INSERT INTO users (
         email, password_hash, full_name, phone,
@@ -82,7 +85,7 @@ export async function POST(req: NextRequest) {
         emailLower,
         passwordHash,
         full_name,
-        cleanPhone || null,
+        cleanPhone,
         college_name || (isAmritaStudent ? 'Amrita Vishwa Vidyapeetham, Amaravati' : null),
         isAmritaStudent,
         roll_number || null,
@@ -93,7 +96,7 @@ export async function POST(req: NextRequest) {
         qrToken,
         emailVerifyToken,
         true, // email_verified
-        isAmritaStudent, // Amrita students have free pass
+        false, // platform_fee_paid starts as false until Superadmin approves
         id_card_url || null,
       ]
     );

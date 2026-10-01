@@ -73,17 +73,41 @@ export default function RegisterPage() {
   const handleIdCardSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      setError('ID card image size must be less than 5MB');
+    if (!file.type.startsWith('image/')) {
+      setError('Please upload an image file (JPG, PNG, WebP)');
       return;
     }
     setError('');
     setIdCardFile(file);
     const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setIdCardPreview(reader.result);
-      }
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const maxDim = 1200;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.82);
+          setIdCardPreview(compressedBase64);
+        } else {
+          setIdCardPreview(event.target?.result as string);
+        }
+      };
+      img.src = event.target?.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -112,7 +136,7 @@ export default function RegisterPage() {
     const cleanPhone = (form.phone ?? '').replace(/\D/g, '');
     if (!cleanPhone) return 'Phone number is required';
     if (cleanPhone.length !== 10) return 'Phone number must be exactly 10 digits';
-    if (!/^[6-9]\d{9}$/.test(cleanPhone)) return 'Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9)';
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) return 'Phone number must start with 6, 7, 8, or 9 (excluding +91)';
     if (!isAmritaSelected && !(form.college_name ?? '').trim()) return 'College / Institution name is required';
     if (isAmritaSelected && !(form.roll_number ?? '').trim()) return 'Amrita Roll Number / Student ID is required';
     if (!form.department) return 'Please select your Branch';
@@ -289,8 +313,8 @@ export default function RegisterPage() {
                         </div>
                         <h4 className="font-semibold text-sm text-slate-100">Amrita Student</h4>
                         <p className="text-xs text-slate-400 mt-1">Amrita Vishwa Vidyapeetham</p>
-                        <div className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
-                          <Sparkles size={10} /> Auto-Verified
+                        <div className="mt-2.5 inline-flex items-center gap-1 text-[11px] font-medium text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                          <Sparkles size={10} /> Campus Delegate
                         </div>
                       </button>
 
@@ -407,10 +431,10 @@ export default function RegisterPage() {
                     />
                   </Field>
 
-                  <Field label="Phone Number (10 digits) *" icon={<Phone size={15} />}>
+                  <Field label="Phone Number (10 digits, starts with 6,7,8,9) *" icon={<Phone size={15} />}>
                     <input
                       type="tel"
-                      placeholder="10-digit mobile number"
+                      placeholder="e.g. 9876543210"
                       value={form.phone}
                       maxLength={10}
                       onChange={e => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
