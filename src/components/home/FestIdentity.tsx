@@ -43,12 +43,12 @@ export const FestIdentity = () => {
         <div className="max-w-3xl space-y-4 mb-16">
 
           
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight font-pixel">
+          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight font-display">
             Two days. One campus.<br />
-            <span className="text-slate-400">Thousands of stories.</span>
+            <span className="text-slate-400 font-semibold">Thousands of stories.</span>
           </h2>
           
-          <p className="text-sm sm:text-base font-pixel text-slate-300 leading-relaxed pt-2 tracking-wide">
+          <p className="text-base sm:text-lg text-slate-300 leading-relaxed pt-2 font-normal">
             Parinaam 2026 brings together students from over 150 engineering, science, and arts institutions across India. Whether you are debugging at 3:00 AM in the innovation hall or performing under stage spotlights, this is where India's brightest talent converges.
           </p>
         </div>
@@ -60,27 +60,27 @@ export const FestIdentity = () => {
             return (
               <div
                 key={pillar.title}
-                className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 hover:border-blue-500/50 transition-all duration-200 group mi-glow-card"
+                className="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 hover:border-purple-500/50 transition-all duration-200 group mi-glow-card"
               >
                 <div className="flex items-center justify-between">
-                  <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                  <div className="w-12 h-12 rounded-xl bg-purple-950/40 border border-purple-800/40 flex items-center justify-center text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                     <Icon className="w-6 h-6" />
                   </div>
-                  <span className="text-[10px] font-pixel font-bold uppercase bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded border border-amber-500/20">
+                  <span className="text-xs font-mono font-bold uppercase bg-amber-500/10 text-amber-300 px-2.5 py-1 rounded-lg border border-amber-500/20">
                     {pillar.highlight}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-pixel uppercase text-slate-400 block mb-1">
+                  <span className="text-[11px] font-mono uppercase text-slate-400 block mb-1">
                     {pillar.tag}
                   </span>
-                  <h3 className="text-lg font-bold text-white group-hover:text-blue-400 transition-colors font-pixel">
+                  <h3 className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors font-display">
                     {pillar.title}
                   </h3>
                 </div>
 
-                <p className="text-xs font-pixel text-slate-400 leading-relaxed tracking-wide">
+                <p className="text-sm text-slate-400 leading-relaxed font-normal">
                   {pillar.description}
                 </p>
               </div>

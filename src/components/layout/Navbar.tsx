@@ -73,15 +73,15 @@ export const Navbar = () => {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center justify-center gap-7 xl:gap-9 font-pixel font-bold text-sm tracking-widest">
+          <nav className="hidden lg:flex items-center justify-center gap-7 xl:gap-8 font-medium text-sm">
             {navLinks.map((link) => {
               const isActive = pathname === link.href;
               return (
                 <Link key={link.name} href={link.href}
                   className={`transition-all duration-200 py-1 ${
                     isActive
-                      ? 'text-[#ff00ff] font-extrabold drop-shadow-[0_0_12px_rgba(255,0,255,0.9)] scale-105'
-                      : 'text-slate-200 hover:text-[#ff00ff] hover:drop-shadow-[0_0_10px_rgba(255,0,255,0.7)]'
+                      ? 'text-[#ff00ff] font-bold drop-shadow-[0_0_12px_rgba(255,0,255,0.9)]'
+                      : 'text-slate-300 hover:text-white'
                   }`}>
                   {link.name}
                 </Link>
@@ -129,12 +129,12 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link href="/auth/login"
-                  className="px-4 py-2 rounded-xl border border-white/10 hover:border-white/30 text-slate-300 hover:text-white text-xs font-pixel font-bold tracking-widest transition-all">
-                  LOGIN
+                  className="px-4 py-2 rounded-xl border border-white/10 hover:border-white/30 text-slate-300 hover:text-white text-xs font-semibold uppercase tracking-wider transition-all">
+                  Login
                 </Link>
                 <Link href="/auth/register"
-                  className="px-6 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white text-xs font-pixel font-bold tracking-widest transition-all shadow-purple-glow active:scale-95 border border-fuchsia-400/40">
-                  REGISTER
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white text-xs font-bold uppercase tracking-wider transition-all shadow-purple-glow active:scale-95 border border-fuchsia-400/40">
+                  Register
                 </Link>
               </>
             )}
@@ -144,8 +144,8 @@ export const Navbar = () => {
           <div className="flex lg:hidden items-center gap-3">
             {!user && (
               <Link href="/auth/register"
-                className="px-3.5 py-1.5 rounded-lg bg-fuchsia-600 text-white text-xs font-pixel font-bold tracking-wider">
-                REGISTER
+                className="px-3.5 py-1.5 rounded-lg bg-fuchsia-600 text-white text-xs font-bold uppercase tracking-wider">
+                Register
               </Link>
             )}
             {user && (

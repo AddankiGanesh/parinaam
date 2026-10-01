@@ -36,9 +36,9 @@ export const Hero = () => {
           <div className="lg:col-span-6 text-left space-y-6">
             
             {/* Top Tagline Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/90 border border-fuchsia-500/50 text-xs font-pixel text-purple-200 shadow-purple-glow">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-950/90 border border-fuchsia-500/50 text-xs font-mono text-purple-200 shadow-purple-glow">
               <Flame className="w-4 h-4 text-amber-400 animate-pulse" />
-              <span className="font-bold tracking-widest uppercase">AMRITA VISHWA VIDYAPEETHAM • AMARAVATI</span>
+              <span className="font-bold tracking-wider uppercase">AMRITA VISHWA VIDYAPEETHAM • AMARAVATI</span>
               <span className="text-fuchsia-500">•</span>
               <span className="text-amber-400 font-bold">OCT 11–12, 2026</span>
             </div>
@@ -53,31 +53,31 @@ export const Hero = () => {
             </div>
 
             {/* Subtitle Statement */}
-            <p className="text-sm sm:text-base font-pixel text-slate-300 font-medium leading-relaxed max-w-xl tracking-wide">
+            <p className="text-base sm:text-lg text-slate-300 font-normal leading-relaxed max-w-xl">
               Two days of intense national hackathons, heavyweight steel robotics combat, live concerts, and cultural battles.
             </p>
 
             {/* Date & Location Pill Summary */}
-            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-pixel text-slate-200 pt-1 tracking-wider">
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800">
+            <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm font-medium text-slate-200 pt-1">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800/80">
                 <Calendar className="w-4 h-4 text-fuchsia-400" />
-                <span>{FEST_CONFIG.dates}</span>
+                <span className="font-mono">{FEST_CONFIG.dates}</span>
               </div>
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800/80">
                 <MapPin className="w-4 h-4 text-amber-400" />
                 <span>Amaravati Campus</span>
               </div>
-              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800">
+              <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-950/70 border border-purple-800/80">
                 <Trophy className="w-4 h-4 text-emerald-400" />
-                <span>{FEST_CONFIG.totalPrizePool} Prize</span>
+                <span className="font-mono font-semibold">{FEST_CONFIG.totalPrizePool} Prize</span>
               </div>
             </div>
 
-            {/* Action CTAs in Pixel Font */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-3 font-pixel">
+            {/* Action CTAs */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-3">
               <Link
                 href="/register"
-                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-extrabold text-sm sm:text-base tracking-widest shadow-purple-glow flex items-center justify-center gap-3 transition-all active:scale-95 border border-fuchsia-400/40 text-center"
+                className="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-sm sm:text-base tracking-wide shadow-purple-glow flex items-center justify-center gap-3 transition-all active:scale-95 border border-fuchsia-400/40 text-center"
               >
                 <Ticket className="w-5 h-5 text-amber-300" />
                 <span>GET DELEGATE PASS</span>
@@ -86,7 +86,7 @@ export const Hero = () => {
 
               <Link
                 href="/events"
-                className="px-7 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-bold text-sm sm:text-base border border-fuchsia-800/80 transition-all text-center tracking-widest"
+                className="px-7 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-semibold text-sm sm:text-base border border-fuchsia-800/80 transition-all text-center tracking-wide"
               >
                 EXPLORE 35+ COMPETITIONS
               </Link>
@@ -104,12 +104,12 @@ export const Hero = () => {
             <div className="relative w-full max-w-2xl bg-gradient-to-b from-[#0e091d]/90 to-[#070410]/95 p-4 sm:p-7 rounded-3xl border border-purple-500/50 shadow-2xl shadow-purple-950/70 mi-glow-card group">
               
               {/* Header Label inside Card */}
-              <div className="flex items-center justify-between pb-3 mb-2 border-b border-purple-900/40 text-xs font-pixel">
-                <span className="text-purple-300 flex items-center gap-2 font-bold tracking-wider">
+              <div className="flex items-center justify-between pb-3 mb-2 border-b border-purple-900/40 text-xs font-mono">
+                <span className="text-purple-300 flex items-center gap-2 font-bold tracking-wide">
                   <Building2 className="w-4 h-4 text-fuchsia-400 animate-pulse" />
                   AMRITA VISHWA VIDYAPEETHAM
                 </span>
-                <span className="text-amber-400 font-bold px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 tracking-widest">
+                <span className="text-amber-400 font-bold px-2.5 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/30">
                   AMARAVATI
                 </span>
               </div>
@@ -127,12 +127,12 @@ export const Hero = () => {
               </div>
 
               {/* Bottom Details Strip */}
-              <div className="mt-3.5 px-1 flex items-center justify-between text-xs font-pixel text-slate-400">
+              <div className="mt-3.5 px-1 flex items-center justify-between text-xs font-mono text-slate-400">
                 <span className="flex items-center gap-1.5 text-slate-300">
                   <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
                   MAIN ACADEMIC & INNOVATION COMPLEX
                 </span>
-                <span className="text-fuchsia-400 font-bold tracking-wider">
+                <span className="text-fuchsia-400 font-bold">
                   FESTIVAL VENUE
                 </span>
               </div>
@@ -144,12 +144,12 @@ export const Hero = () => {
         </div>
 
         {/* Live Ticker & Stats Strip */}
-        <div className="pt-10 border-t border-purple-900/50 grid grid-cols-2 md:grid-cols-4 gap-6 font-pixel">
+        <div className="pt-10 border-t border-purple-900/50 grid grid-cols-2 md:grid-cols-4 gap-6">
           <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
               Fest Countdown
             </span>
-            <div className="flex items-baseline justify-center gap-1.5">
+            <div className="flex items-baseline justify-center gap-1.5 font-mono">
               <span className="text-2xl font-bold text-white">{timeLeft.days}d</span>
               <span className="text-2xl font-bold text-white">{timeLeft.hours}h</span>
               <span className="text-2xl font-bold text-[#ff00ff]">{timeLeft.minutes}m</span>
@@ -158,28 +158,28 @@ export const Hero = () => {
           </div>
 
           <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
               National Prize Pool
             </span>
-            <span className="text-2xl font-extrabold text-amber-400">
+            <span className="text-2xl font-extrabold text-amber-400 font-mono">
               {FEST_CONFIG.totalPrizePool}
             </span>
           </div>
 
           <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
               Participating Colleges
             </span>
-            <span className="text-2xl font-extrabold text-white">
+            <span className="text-2xl font-extrabold text-white font-mono">
               {FEST_CONFIG.participatingColleges}
             </span>
           </div>
 
           <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-[11px] text-slate-400 uppercase tracking-wider block mb-1">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
               Expected Delegates
             </span>
-            <span className="text-2xl font-extrabold text-emerald-400">
+            <span className="text-2xl font-extrabold text-emerald-400 font-mono">
               {FEST_CONFIG.expectedParticipants}
             </span>
           </div>

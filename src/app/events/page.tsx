@@ -137,13 +137,17 @@ export default function EventsPage() {
             <Loader2 size={32} className="animate-spin text-purple-500" />
           </div>
         ) : events.length === 0 ? (
-          <div className="text-center py-20 bg-white/3 border border-white/10 rounded-2xl">
-            <Filter size={36} className="mx-auto text-slate-600 mb-3" />
-            <p className="text-white font-semibold">No events found</p>
-            <p className="text-slate-500 text-sm mt-1">Try adjusting your filters</p>
-            <button onClick={clearFilters} className="mt-4 px-5 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm hover:bg-white/10">
-              Clear filters
-            </button>
+          <div className="text-center py-20 bg-white/[0.02] border border-dashed border-white/10 rounded-3xl p-8 max-w-lg mx-auto">
+            <Filter size={36} className="mx-auto text-purple-400 mb-3 opacity-60" />
+            <p className="text-white font-bold text-lg">{hasFilters ? 'No events matching filters' : 'Club Events Releasing Soon'}</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md mx-auto">
+              {hasFilters ? 'Try clearing your search or selecting a different club cluster.' : 'The 12 official club administrators are currently uploading festival workshops and competitions.'}
+            </p>
+            {hasFilters && (
+              <button onClick={clearFilters} className="mt-5 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold transition-all">
+                Clear all filters
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

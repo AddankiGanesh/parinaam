@@ -27,7 +27,7 @@ export const Footer = () => {
             <div className="flex items-center gap-2 pt-2">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
                 <MapPin className="w-3.5 h-3.5 text-primary" />
-                <span>Ettimadai, Coimbatore</span>
+                <span>Amaravati, Andhra Pradesh</span>
               </div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
@@ -140,8 +140,8 @@ export const Footer = () => {
             <a href="#" className="hover:text-slate-300 transition-colors">
               Festival Guidelines
             </a>
-            <span className="font-mono text-slate-400">
-              Built by <span className="text-white">Amrita Web Team</span>
+            <span className="text-slate-400">
+              Built with 💜 by <span className="text-white font-medium">Student Council, Amrita Amaravati</span>
             </span>
           </div>
         </div>
