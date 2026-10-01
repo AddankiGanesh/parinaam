@@ -31,6 +31,7 @@ export default function DashboardPage() {
       .then(r => r.json())
       .then(d => { if (d.success) setRegistrations(d.data.registrations); })
       .finally(() => setLoadingRegs(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!user) return null;
