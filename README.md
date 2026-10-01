@@ -25,11 +25,12 @@
 **Parinaam** is the premier annual university techfest hosting hackathons, coding contests, robotic wars, cultural nights, battle of bands, and workshops across a 2-day extravaganza.
 
 This platform provides an end-to-end digital operating system for the festival:
-1. **Student Registration**: Dual verification flow distinguishing in-house Amrita students (`@am.students.amrita.edu`) from external national college participants.
+1. **Student Registration**: Dual verification flow distinguishing in-house Amrita students (`@av.students.amrita.edu`) from external national college participants.
 2. **Super Admin Command HQ (`/superadmin`)**: Centralized dashboard monitoring live revenue, registration volume, platform-wide configurations, and external student ID verification.
 3. **12 Club Admin Portals (`/admin/<clubSlug>`)**: Independent sub-dashboards where individual club leads create rich multi-round events, manage rules, download participant CSVs, and scan QR passes at venues.
 4. **Digital Pass & QR Gate Check-in**: Dynamic pass generation with anti-counterfeit QR codes and instant live scanning with duplicate entry detection.
 5. **Razorpay Payment Gateway**: Seamless platform delegate fee and individual paid workshop collection.
+
 
 ---
 
@@ -67,7 +68,7 @@ This platform provides an end-to-end digital operating system for the festival:
 
 ### 1. Dual-Tier Student Registration Flow
 - **Amrita Students**:
-  - Requires `@am.students.amrita.edu` institutional email domain.
+  - Requires `@av.students.amrita.edu` institutional email domain.
   - Automatically verified upon signup; college name is locked to *Amrita Vishwa Vidyapeetham*.
   - Instant access to delegate passes upon platform fee checkout.
 - **Other College Students**:

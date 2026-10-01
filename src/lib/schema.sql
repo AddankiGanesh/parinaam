@@ -261,7 +261,7 @@ INSERT INTO platform_config (key, value, description) VALUES
   ('fest_name', 'PARINAAM 2026', 'Fest name'),
   ('fest_dates', 'October 11-12, 2026', 'Fest dates'),
   ('registration_open', 'true', 'Global registration toggle'),
-  ('amrita_domain', 'am.students.amrita.edu', 'Amrita student email domain')
+  ('amrita_domain', 'av.students.amrita.edu', 'Amrita student email domain')
 ON CONFLICT (key) DO NOTHING;
 
 -- ============================================================

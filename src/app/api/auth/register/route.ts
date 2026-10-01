@@ -5,7 +5,7 @@ import { db } from '@/lib/db';
 import { signToken, COOKIE_NAME, COOKIE_OPTIONS } from '@/lib/auth';
 import { success, error, serverError } from '@/lib/apiResponse';
 
-const AMRITA_DOMAIN = 'am.students.amrita.edu';
+const AMRITA_DOMAIN = 'av.students.amrita.edu';
 
 export async function POST(req: NextRequest) {
   try {

@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { useAuth, RegisterData } from '@/context/AuthContext';
 
-const AMRITA_DOMAIN = 'am.students.amrita.edu';
+const AMRITA_DOMAIN = 'av.students.amrita.edu';
 const STEPS = ['Category & Account', 'Student Profile', 'Confirm'];
 
 export default function RegisterPage() {
@@ -356,12 +356,12 @@ export default function RegisterPage() {
                   <div className="border-t border-white/10 pt-4 space-y-4">
                     {/* Email Input */}
                     <Field
-                      label={isAmritaSelected ? 'Amrita College Email (@am.students.amrita.edu)' : 'Email Address'}
+                      label={isAmritaSelected ? 'Amrita College Email (@av.students.amrita.edu)' : 'Email Address'}
                       icon={<Mail size={15} />}
                     >
                       <input
                         type="email"
-                        placeholder={isAmritaSelected ? 'username@am.students.amrita.edu' : 'you@example.com'}
+                        placeholder={isAmritaSelected ? 'username@av.students.amrita.edu' : 'you@example.com'}
                         value={form.email}
                         onChange={e => set('email', e.target.value)}
                         required

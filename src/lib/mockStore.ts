@@ -143,7 +143,7 @@ const USERS_DATA: MockUser[] = [
   // Sample student account
   {
     id: 'usr-demo-student',
-    email: 'student@am.students.amrita.edu',
+    email: 'student@av.students.amrita.edu',
     password_hash: ADMIN_PASSWORD_HASH,
     full_name: 'Aravind Kumar',
     phone: '+91 9876543210',
@@ -181,7 +181,7 @@ class MockDbEngine {
     fest_name: 'PARINAAM 2026',
     fest_dates: 'October 11-12, 2026',
     registration_open: 'true',
-    amrita_domain: 'am.students.amrita.edu',
+    amrita_domain: 'av.students.amrita.edu',
   };
 
   async executeQuery(text: string, params: any[] = []): Promise<{ rows: any[]; rowCount: number }> {
