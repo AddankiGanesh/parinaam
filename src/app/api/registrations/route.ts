@@ -13,18 +13,18 @@ export async function POST(req: NextRequest) {
     const { event_id, team_name, team_members = [] } = await req.json();
     if (!event_id) return error('Event ID is required');
 
-    // Check user verification and platform fee
+    // Check user verification
     const userResult = await db.query(
-      `SELECT id, verification_status, platform_fee_paid FROM users WHERE id = $1`,
+      `SELECT id, is_amrita_student, verification_status, platform_fee_paid FROM users WHERE id = $1`,
       [session.userId]
     );
     const user = userResult.rows[0];
     
     if (user.verification_status !== 'verified') {
-      return error('Your account must be verified before registering for events. Please wait for admin approval.', 403);
+      return error('Your account verification is pending Super Admin approval. You will be able to register once verified.', 403);
     }
-    if (!user.platform_fee_paid) {
-      return error('Please complete platform registration payment before registering for events.', 403);
+    if (!user.is_amrita_student && !user.platform_fee_paid) {
+      return error('Please complete registration payment before registering for events.', 403);
     }
 
     // Check event

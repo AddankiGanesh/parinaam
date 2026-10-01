@@ -26,13 +26,34 @@ export const Navbar = () => {
     return () => document.removeEventListener('click', close);
   }, [userMenuOpen]);
 
-  const navLinks = [
-    { name: 'SCHEDULE', href: '/schedule' },
-    { name: 'EVENTS', href: '/events' },
-    { name: 'PRONITES', href: '/pronites' },
-    { name: 'GALLERY', href: '/#gallery' },
-    { name: 'SPONSORS', href: '/#sponsors' },
-  ];
+  const navLinks = user
+    ? user.role === 'student'
+      ? [
+          { name: 'DASHBOARD', href: '/dashboard' },
+          { name: 'MY PASS', href: '/dashboard/pass' },
+          { name: 'EVENTS', href: '/events' },
+          { name: 'SCHEDULE', href: '/schedule' },
+          { name: 'PRONITES', href: '/pronites' },
+        ]
+      : user.role === 'super_admin'
+      ? [
+          { name: 'HQ DASHBOARD', href: '/superadmin' },
+          { name: 'ALL USERS', href: '/superadmin/users' },
+          { name: 'EVENTS', href: '/events' },
+          { name: 'SCHEDULE', href: '/schedule' },
+        ]
+      : [
+          { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
+          { name: 'EVENTS', href: '/events' },
+          { name: 'SCHEDULE', href: '/schedule' },
+        ]
+    : [
+        { name: 'SCHEDULE', href: '/schedule' },
+        { name: 'EVENTS', href: '/events' },
+        { name: 'PRONITES', href: '/pronites' },
+        { name: 'GALLERY', href: '/#gallery' },
+        { name: 'SPONSORS', href: '/#sponsors' },
+      ];
 
   const dashboardHref =
     user?.role === 'super_admin' ? '/superadmin' :

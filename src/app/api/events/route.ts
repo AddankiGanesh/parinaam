@@ -58,13 +58,14 @@ export async function GET(req: NextRequest) {
       )
     ]);
 
+    const totalCount = parseInt(countResult.rows?.[0]?.count || '0', 10);
     return success({
       events: eventsResult.rows,
       pagination: {
-        total: parseInt(countResult.rows[0].count),
+        total: totalCount,
         page,
         limit,
-        totalPages: Math.ceil(parseInt(countResult.rows[0].count) / limit),
+        totalPages: Math.ceil(totalCount / limit) || 1,
       },
     });
   } catch (err) {

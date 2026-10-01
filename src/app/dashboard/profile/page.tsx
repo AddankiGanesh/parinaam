@@ -69,51 +69,57 @@ export default function ProfilePage() {
         </div>
 
         {/* Verification status card */}
-        {!user.is_amrita_student && (
-          <div className={`mb-6 p-4 rounded-2xl border ${
-            user.verification_status === 'verified'  ? 'bg-green-500/10 border-green-500/30' :
-            user.verification_status === 'rejected'  ? 'bg-red-500/10 border-red-500/30' :
-            'bg-amber-500/10 border-amber-500/30'
-          }`}>
-            <div className="flex items-center gap-2 mb-2">
-              {user.verification_status === 'verified'  ? <CheckCircle size={16} className="text-green-400"/> :
-               user.verification_status === 'rejected'  ? <AlertTriangle size={16} className="text-red-400"/> :
-               <AlertTriangle size={16} className="text-amber-400"/>}
-              <p className={`text-sm font-semibold capitalize ${
-                user.verification_status === 'verified'  ? 'text-green-300' :
-                user.verification_status === 'rejected'  ? 'text-red-300' : 'text-amber-300'
-              }`}>
-                ID Verification: {user.verification_status}
-              </p>
-            </div>
-
-            {user.verification_status !== 'verified' && (
-              <>
-                <p className="text-slate-400 text-xs mb-3">
-                  {user.verification_status === 'rejected'
-                    ? 'Your ID was rejected. Please upload a clearer image of your college ID card.'
-                    : 'Upload your college ID card for account verification.'}
-                </p>
-                <div className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500/40 transition-colors"
-                  onClick={() => document.getElementById('id-card-upload')?.click()}>
-                  <Upload size={20} className="mx-auto text-slate-500 mb-1"/>
-                  <p className="text-slate-400 text-xs">{idFile ? idFile.name : 'Click to select ID card (JPG, PNG, PDF)'}</p>
-                  <input id="id-card-upload" type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
-                    onChange={e => setIdFile(e.target.files?.[0] || null)}/>
-                </div>
-                {idFile && (
-                  <button onClick={handleIdUpload} disabled={uploading}
-                    className="mt-3 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 rounded-xl text-sm disabled:opacity-50">
-                    {uploading ? 'Uploading…' : 'Upload ID Card'}
-                  </button>
-                )}
-                {user.id_card_url && !idFile && (
-                  <p className="text-slate-600 text-xs mt-2">ID card already uploaded — waiting for review</p>
-                )}
-              </>
-            )}
+        <div className={`mb-6 p-4 rounded-2xl border ${
+          user.verification_status === 'verified'  ? 'bg-green-500/10 border-green-500/30' :
+          user.verification_status === 'rejected'  ? 'bg-red-500/10 border-red-500/30' :
+          'bg-amber-500/10 border-amber-500/30'
+        }`}>
+          <div className="flex items-center gap-2 mb-2">
+            {user.verification_status === 'verified'  ? <CheckCircle size={16} className="text-green-400"/> :
+             user.verification_status === 'rejected'  ? <AlertTriangle size={16} className="text-red-400"/> :
+             <AlertTriangle size={16} className="text-amber-400"/>}
+            <p className={`text-sm font-semibold capitalize ${
+              user.verification_status === 'verified'  ? 'text-green-300' :
+              user.verification_status === 'rejected'  ? 'text-red-300' : 'text-amber-300'
+            }`}>
+              Account Verification: {user.verification_status || 'Pending'}
+            </p>
           </div>
-        )}
+
+          {user.verification_status !== 'verified' && (
+            <p className="text-slate-400 text-xs mb-3">
+              {user.verification_status === 'rejected'
+                ? 'Your registration was rejected by Super Admin. Please contact the coordinators.'
+                : 'Your profile is awaiting Super Admin verification. Once approved, you can register for events.'}
+            </p>
+          )}
+
+          {!user.is_amrita_student && user.verification_status !== 'verified' && (
+            <>
+              <p className="text-slate-400 text-xs mb-3">
+                {user.verification_status === 'rejected'
+                  ? 'Please upload a clearer image of your college ID card.'
+                  : 'Upload your college ID card for account verification.'}
+              </p>
+              <div className="border-2 border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:border-purple-500/40 transition-colors"
+                onClick={() => document.getElementById('id-card-upload')?.click()}>
+                <Upload size={20} className="mx-auto text-slate-500 mb-1"/>
+                <p className="text-slate-400 text-xs">{idFile ? idFile.name : 'Click to select ID card (JPG, PNG, PDF)'}</p>
+                <input id="id-card-upload" type="file" accept=".jpg,.jpeg,.png,.pdf" className="hidden"
+                  onChange={e => setIdFile(e.target.files?.[0] || null)}/>
+              </div>
+              {idFile && (
+                <button onClick={handleIdUpload} disabled={uploading}
+                  className="mt-3 w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold py-2 rounded-xl text-sm disabled:opacity-50">
+                  {uploading ? 'Uploading…' : 'Upload ID Card'}
+                </button>
+              )}
+              {user.id_card_url && !idFile && (
+                <p className="text-slate-600 text-xs mt-2">ID card already uploaded — waiting for review</p>
+              )}
+            </>
+          )}
+        </div>
 
         {/* Profile form */}
         <form onSubmit={handleSave} className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
@@ -134,27 +140,79 @@ export default function ProfilePage() {
             {user.is_amrita_student && <p className="text-xs text-purple-400 mt-1">✓ Verified Amrita student</p>}
           </div>
 
-          {[
-            { key:'full_name',    label:'Full Name',       icon:<User size={14}/>,         placeholder:'As on college ID' },
-            { key:'phone',        label:'Phone Number',    icon:<Phone size={14}/>,        placeholder:'+91 9876543210' },
-            { key:'college_name', label:'College Name',    icon:<Building2 size={14}/>,    placeholder:'Institution name', disabled: user.is_amrita_student },
-            { key:'roll_number',  label:'Roll Number',     icon:<GraduationCap size={14}/>,placeholder:'Your roll/reg number' },
-            { key:'city',         label:'City',            icon:<MapPin size={14}/>,       placeholder:'Your city' },
-          ].map(f => (
-            <div key={f.key}>
-              <label className="text-xs font-medium text-slate-400 block mb-1.5">{f.label}</label>
-              <div className="relative">
-                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600">{f.icon}</div>
-                <input
-                  value={form[f.key as keyof typeof form]}
-                  onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                  placeholder={f.placeholder}
-                  disabled={f.disabled}
-                  className={`${inp} pl-9 ${f.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                />
-              </div>
+          <div>
+            <label className="text-xs font-medium text-slate-400 block mb-1.5">Full Name</label>
+            <div className="relative">
+              <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
+              <input
+                value={form.full_name}
+                onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
+                placeholder="As on college ID"
+                className={`${inp} pl-9`}
+                required
+              />
             </div>
-          ))}
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-400 block mb-1.5">Phone Number (10 Digits)</label>
+            <div className="relative">
+              <Phone size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
+              <input
+                type="tel"
+                maxLength={10}
+                value={form.phone}
+                onChange={e => {
+                  const cleaned = e.target.value.replace(/\D/g, '').slice(0, 10);
+                  setForm(p => ({ ...p, phone: cleaned }));
+                }}
+                placeholder="10-digit mobile number"
+                className={`${inp} pl-9`}
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-400 block mb-1.5">College Name</label>
+            <div className="relative">
+              <Building2 size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
+              <input
+                value={form.college_name}
+                onChange={e => setForm(p => ({ ...p, college_name: e.target.value }))}
+                placeholder="Institution name"
+                disabled={user.is_amrita_student}
+                className={`${inp} pl-9 ${user.is_amrita_student ? 'opacity-50 cursor-not-allowed' : ''}`}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-400 block mb-1.5">Roll / Registration Number</label>
+            <div className="relative">
+              <GraduationCap size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
+              <input
+                value={form.roll_number}
+                onChange={e => setForm(p => ({ ...p, roll_number: e.target.value }))}
+                placeholder="Your roll/reg number"
+                className={`${inp} pl-9`}
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs font-medium text-slate-400 block mb-1.5">City</label>
+            <div className="relative">
+              <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"/>
+              <input
+                value={form.city}
+                onChange={e => setForm(p => ({ ...p, city: e.target.value }))}
+                placeholder="Your city"
+                className={`${inp} pl-9`}
+              />
+            </div>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>

@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Building2,
   AlertCircle,
+  AlertTriangle,
   CheckCircle,
   ArrowRight,
   ArrowLeft,
@@ -80,16 +81,22 @@ export default function RegisterPage() {
       return `Amrita students must use an official Amrita email (@${AMRITA_DOMAIN})`;
     }
     if (!form.password) return 'Password is required';
-    if (form.password.length < 8) return 'Password must be at least 8 characters';
-    if (form.password !== form.confirmPassword) return 'Passwords do not match';
+    if (form.password.length < 8) return 'Password must be at least 8 characters long';
+    if (!form.confirmPassword) return 'Please confirm your password';
+    if (form.password !== form.confirmPassword) return 'Passwords do not match. Please ensure both passwords are identical.';
     return '';
   };
 
   const validateStep1 = () => {
     if (!form.full_name.trim()) return 'Full name is required';
-    if (!(form.phone ?? '').trim()) return 'Phone number is required';
+    const cleanPhone = (form.phone ?? '').replace(/\D/g, '');
+    if (!cleanPhone) return 'Phone number is required';
+    if (cleanPhone.length !== 10) return 'Phone number must be exactly 10 digits';
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) return 'Please enter a valid 10-digit mobile number (starting with 6, 7, 8, or 9)';
     if (!isAmritaSelected && !(form.college_name ?? '').trim()) return 'College / Institution name is required';
     if (isAmritaSelected && !(form.roll_number ?? '').trim()) return 'Amrita Roll Number / Student ID is required';
+    if (!form.department) return 'Please select your Branch';
+    if (!form.year_of_study) return 'Please select your Year of Study';
     return '';
   };
 
@@ -111,6 +118,7 @@ export default function RegisterPage() {
     const { confirmPassword, ...data } = form;
     const result = await register({
       ...data,
+      phone: (data.phone || '').replace(/\D/g, '').slice(0, 10),
       student_type: studentType,
       college_name: isAmritaSelected ? 'Amrita Vishwa Vidyapeetham, Amaravati' : data.college_name,
     });
@@ -148,75 +156,25 @@ export default function RegisterPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="w-full max-w-md bg-white/5 border border-white/10 rounded-2xl p-8 text-center backdrop-blur-xl relative z-10"
         >
-          <div className="w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="text-emerald-400" size={32} />
+          <div className="w-16 h-16 rounded-full bg-purple-500/20 border border-purple-500/30 flex items-center justify-center mx-auto mb-4">
+            <CheckCircle className="text-purple-400" size={32} />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Account Created!</h2>
+          <h2 className="text-2xl font-bold text-white mb-2">Registration Submitted!</h2>
 
-          {isAmritaSelected ? (
-            <>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-300 text-xs font-medium mb-4">
-                <ShieldCheck size={14} /> Amrita Student Auto-Verified
-              </div>
-              <p className="text-slate-400 mb-6 text-sm">
-                Welcome to Parinaam! Your Amrita student account is instantly verified. Explore all events, hackathons, and workshops now.
-              </p>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-purple-900/30"
-              >
-                Go to Student Dashboard →
-              </button>
-            </>
-          ) : needsIdUpload ? (
-            <>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-medium mb-3">
-                <IdCard size={14} /> ID Verification Required
-              </div>
-              <p className="text-slate-400 mb-4 text-sm">
-                Please upload a clear photo or PDF of your <span className="text-white font-medium">College ID card</span> to verify your registration.
-              </p>
-              
-              <div
-                className="border-2 border-dashed border-white/20 hover:border-purple-500/60 rounded-xl p-6 mb-4 cursor-pointer transition-all bg-white/[0.02] hover:bg-white/[0.04]"
-                onClick={() => document.getElementById('id-card-input')?.click()}
-              >
-                <Upload size={28} className="mx-auto text-purple-400 mb-2" />
-                <p className="text-sm font-medium text-slate-200">
-                  {idCardFile ? idCardFile.name : 'Upload College ID Card'}
-                </p>
-                <p className="text-xs text-slate-500 mt-1">Supports JPG, PNG, or PDF (Max 5MB)</p>
-                <input
-                  id="id-card-input"
-                  type="file"
-                  accept=".jpg,.jpeg,.png,.pdf"
-                  className="hidden"
-                  onChange={e => setIdCardFile(e.target.files?.[0] || null)}
-                />
-              </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-4">
+            <AlertTriangle size={14} /> Verification Pending Approval
+          </div>
 
-              <button
-                onClick={handleIdUpload}
-                disabled={!idCardFile || loading}
-                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl disabled:opacity-50 transition-all shadow-lg shadow-purple-900/30"
-              >
-                {loading ? 'Uploading ID...' : 'Submit ID Card & Continue'}
-              </button>
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full mt-3 text-slate-400 hover:text-slate-300 text-xs transition-colors"
-              >
-                Skip for now (upload later in profile)
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl"
-            >
-              Go to Dashboard →
-            </button>
-          )}
+          <p className="text-slate-300 mb-6 text-xs leading-relaxed">
+            Your student profile has been created successfully. Super Admin is reviewing registration records. Once approved, you will have full access to register for festival events and competitions.
+          </p>
+
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-purple-900/30 text-sm"
+          >
+            Go to Student Dashboard →
+          </button>
         </motion.div>
       </div>
     );
@@ -436,12 +394,13 @@ export default function RegisterPage() {
                     />
                   </Field>
 
-                  <Field label="Phone Number" icon={<Phone size={15} />}>
+                  <Field label="Phone Number (10 digits) *" icon={<Phone size={15} />}>
                     <input
                       type="tel"
-                      placeholder="+91 9876543210"
+                      placeholder="10-digit mobile number"
                       value={form.phone}
-                      onChange={e => set('phone', e.target.value)}
+                      maxLength={10}
+                      onChange={e => set('phone', e.target.value.replace(/\D/g, '').slice(0, 10))}
                       required
                       className={inputCls}
                     />

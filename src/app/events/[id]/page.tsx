@@ -50,9 +50,13 @@ export default function EventDetailPage() {
 
   const handleRegister = async () => {
     if (!user) { router.push('/auth/login'); return; }
-    if (!user.platform_fee_paid) { router.push('/dashboard/payment'); return; }
     if (user.verification_status !== 'verified') {
-      setRegError('Your account must be verified before registering.'); return;
+      setRegError('Your account verification is pending Super Admin approval. Once approved, you can register for events.');
+      return;
+    }
+    if (!user.is_amrita_student && !user.platform_fee_paid) {
+      router.push('/dashboard/payment');
+      return;
     }
 
     setRegistering(true); setRegError('');
@@ -272,6 +276,18 @@ export default function EventDetailPage() {
                   </div>
                 )}
 
+                {/* Verification pending banner */}
+                {user && user.verification_status !== 'verified' && !myReg && (
+                  <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl text-xs">
+                    <div className="flex items-center gap-2 text-amber-300 font-semibold mb-1">
+                      <Clock size={14} /> Verification Pending Approval
+                    </div>
+                    <p className="text-slate-400 leading-relaxed">
+                      Your profile is submitted to Super Admin for verification. Once approved, you can register for all events.
+                    </p>
+                  </div>
+                )}
+
                 {/* Error */}
                 {regError && (
                   <div className="mb-3 flex items-start gap-2 bg-red-500/10 border border-red-500/30 rounded-xl px-3 py-2.5 text-red-400 text-xs">
@@ -292,16 +308,17 @@ export default function EventDetailPage() {
                     )}
                     <button
                       onClick={isTeamEvent && !showRegForm ? () => setShowRegForm(true) : handleRegister}
-                      disabled={registering || isFull || !event.registration_open}
+                      disabled={registering || isFull || !event.registration_open || (!!user && user.verification_status !== 'verified')}
                       className={`w-full flex items-center justify-center gap-2 font-semibold py-3 rounded-xl transition-all ${
-                        isFull || !event.registration_open
-                          ? 'bg-white/5 text-slate-600 cursor-not-allowed'
+                        isFull || !event.registration_open || (!!user && user.verification_status !== 'verified')
+                          ? 'bg-white/5 text-slate-500 cursor-not-allowed border border-white/10'
                           : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-900/30'
                       }`}>
                       {registering ? <Loader2 size={16} className="animate-spin" /> :
                         isFull ? 'Event is Full' :
                         !event.registration_open ? 'Registration Closed' :
                         !user ? 'Sign in to Register' :
+                        user.verification_status !== 'verified' ? '⏳ Verification Pending' :
                         isTeamEvent && !showRegForm ? 'Register Team →' :
                         `Register${event.fee > 0 ? ` · ₹${event.fee}` : ''} →`}
                     </button>

@@ -53,14 +53,19 @@ export async function POST(req: NextRequest) {
       return error('An account with this email already exists', 409);
     }
 
+    const cleanPhone = (phone || '').replace(/\D/g, '').slice(0, 10);
+    if (cleanPhone && cleanPhone.length !== 10) {
+      return error('Phone number must be exactly 10 digits');
+    }
+
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
     // Generate QR token (opaque UUID hash)
     const qrToken = uuidv4().replace(/-/g, '') + uuidv4().replace(/-/g, '').slice(0, 8);
 
-    // Amrita students are auto-verified, others need ID card verification
-    const verificationStatus = isAmritaStudent ? 'verified' : 'pending';
+    // Both Amrita and external students start with pending verification for Super Admin review
+    const verificationStatus = 'pending';
     const emailVerifyToken = uuidv4();
 
     // Insert user
@@ -76,8 +81,8 @@ export async function POST(req: NextRequest) {
         emailLower,
         passwordHash,
         full_name,
-        phone || null,
-        college_name || (isAmritaStudent ? 'Amrita Vishwa Vidyapeetham' : null),
+        cleanPhone || null,
+        college_name || (isAmritaStudent ? 'Amrita Vishwa Vidyapeetham, Amaravati' : null),
         isAmritaStudent,
         roll_number || null,
         department || null,
@@ -86,8 +91,8 @@ export async function POST(req: NextRequest) {
         verificationStatus,
         qrToken,
         emailVerifyToken,
-        isAmritaStudent, // Amrita students auto email-verified
-        isAmritaStudent, // Amrita students need not pay any amount (free delegate pass)
+        true, // email_verified
+        isAmritaStudent, // Amrita students have free pass
       ]
     );
 

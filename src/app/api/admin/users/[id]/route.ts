@@ -23,6 +23,7 @@ export async function PATCH(
       `UPDATE users
        SET verification_status = $1,
            verification_note   = $2,
+           platform_fee_paid   = CASE WHEN $1 = 'verified' THEN TRUE ELSE platform_fee_paid END,
            verified_at         = NOW(),
            verified_by         = $3
        WHERE id = $4`,
@@ -36,8 +37,8 @@ export async function PATCH(
   }
 }
 
-// PATCH /api/admin/users/[id]/role — change user role / assign club
-export async function POST(
+// PUT /api/admin/users/[id] — super admin edits any student details
+export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -47,19 +48,87 @@ export async function POST(
     if (!session) return unauthorized();
     if (session.role !== 'super_admin') return forbidden();
 
-    const { role, club_id } = await req.json();
-    if (!['student', 'club_admin', 'super_admin'].includes(role)) {
-      return error('Invalid role');
-    }
+    const body = await req.json();
+    const {
+      full_name,
+      email,
+      phone,
+      college_name,
+      is_amrita_student,
+      roll_number,
+      department,
+      year_of_study,
+      city,
+      verification_status,
+      platform_fee_paid,
+      role,
+    } = body;
 
     await db.query(
-      `UPDATE users SET role = $1, club_id = $2 WHERE id = $3`,
-      [role, club_id || null, id]
+      `UPDATE users SET
+        full_name = COALESCE($1, full_name),
+        email = COALESCE($2, email),
+        phone = COALESCE($3, phone),
+        college_name = COALESCE($4, college_name),
+        is_amrita_student = COALESCE($5, is_amrita_student),
+        roll_number = COALESCE($6, roll_number),
+        department = COALESCE($7, department),
+        year_of_study = COALESCE($8, year_of_study),
+        city = COALESCE($9, city),
+        verification_status = COALESCE($10, verification_status),
+        platform_fee_paid = COALESCE($11, platform_fee_paid),
+        role = COALESCE($12, role),
+        updated_at = NOW()
+       WHERE id = $13`,
+      [
+        full_name,
+        email ? email.toLowerCase().trim() : null,
+        phone,
+        college_name,
+        typeof is_amrita_student === 'boolean' ? is_amrita_student : null,
+        roll_number,
+        department,
+        year_of_study,
+        city,
+        verification_status,
+        typeof platform_fee_paid === 'boolean' ? platform_fee_paid : null,
+        role,
+        id,
+      ]
     );
 
-    return success({ message: 'User role updated' });
+    return success({ message: 'Student profile updated successfully' });
   } catch (err) {
-    console.error('Update role error:', err);
+    console.error('Superadmin edit user error:', err);
+    return serverError();
+  }
+}
+
+// DELETE /api/admin/users/[id] — super admin deletes user
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await getSessionUser(req);
+    if (!session) return unauthorized();
+    if (session.role !== 'super_admin') return forbidden();
+
+    // Prevent superadmin from deleting themselves
+    if (session.userId === id) {
+      return error('Cannot delete your own superadmin account');
+    }
+
+    // Cascade cleanup
+    await db.query(`DELETE FROM attendance WHERE user_id = $1`, [id]);
+    await db.query(`DELETE FROM registrations WHERE user_id = $1`, [id]);
+    await db.query(`DELETE FROM payments WHERE user_id = $1`, [id]);
+    await db.query(`DELETE FROM users WHERE id = $1`, [id]);
+
+    return success({ message: 'User deleted successfully' });
+  } catch (err) {
+    console.error('Delete user error:', err);
     return serverError();
   }
 }
