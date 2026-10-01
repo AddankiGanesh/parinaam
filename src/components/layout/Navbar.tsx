@@ -80,13 +80,11 @@ export const Navbar = () => {
           {/* Logo */}
           <Link href="/" className="flex items-center group shrink-0">
             <img
-              src="/images/parinaam-navbar-logo.png"
-              alt="PARIनाम"
-              className="h-10 sm:h-12 w-auto object-contain drop-shadow-[0_0_15px_rgba(168,85,247,0.7)] group-hover:scale-105 transition-transform"
+              src="/images/amrita-logo.png"
+              alt="Amrita Vishwa Vidyapeetham"
+              className="h-10 sm:h-12 w-auto object-contain brightness-105 group-hover:scale-105 transition-transform drop-shadow-[0_0_12px_rgba(236,72,153,0.35)]"
               onError={(e) => {
-                (e.target as HTMLImageElement).style.display = 'none';
-                (e.target as HTMLImageElement).parentElement!.innerHTML +=
-                  '<span class="font-[\'Pixelify_Sans\'] text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">PARINAAM</span>';
+                (e.target as HTMLImageElement).src = '/images/parinaam-navbar-logo.png';
               }}
             />
           </Link>

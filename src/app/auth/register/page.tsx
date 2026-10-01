@@ -23,6 +23,7 @@ import {
   Sparkles,
   ShieldCheck,
   IdCard,
+  MapPin,
 } from 'lucide-react';
 import { useAuth, RegisterData } from '@/context/AuthContext';
 
@@ -137,9 +138,15 @@ export default function RegisterPage() {
     if (!cleanPhone) return 'Phone number is required';
     if (cleanPhone.length !== 10) return 'Phone number must be exactly 10 digits';
     if (!/^[6-9]\d{9}$/.test(cleanPhone)) return 'Phone number must start with 6, 7, 8, or 9 (excluding +91)';
-    if (!isAmritaSelected && !(form.college_name ?? '').trim()) return 'College / Institution name is required';
-    if (isAmritaSelected && !(form.roll_number ?? '').trim()) return 'Amrita Roll Number / Student ID is required';
-    if (!form.department) return 'Please select your Branch';
+    if (isAmritaSelected) {
+      if (!(form.roll_number ?? '').trim()) return 'Amrita Roll Number / Student ID is required';
+      if (!form.department) return 'Please select your Branch';
+    } else {
+      if (!(form.college_name ?? '').trim()) return 'College / Institution name is required';
+      if (!(form.roll_number ?? '').trim()) return 'Roll / Student ID Number is required';
+      if (!(form.department ?? '').trim()) return 'Branch / Department name is required';
+      if (!(form.city ?? '').trim()) return 'City / Location is required';
+    }
     if (!form.year_of_study) return 'Please select your Year of Study';
     return '';
   };
@@ -472,36 +479,50 @@ export default function RegisterPage() {
 
                   {/* Roll Number */}
                   <Field
-                    label={isAmritaSelected ? 'Amrita Roll Number / Student ID *' : 'Roll / Registration Number (Optional)'}
+                    label={isAmritaSelected ? 'Amrita Roll Number / Student ID *' : 'Roll / Student ID Number *'}
                     icon={<GraduationCap size={15} />}
                   >
                     <input
                       type="text"
-                      placeholder={isAmritaSelected ? 'e.g. CB.EN.U4CSE21001 or AV.SC.U4...' : 'e.g. 21BCE1024'}
+                      placeholder={isAmritaSelected ? 'e.g. CB.EN.U4CSE21001 or AV.SC.U4...' : 'e.g. 21BCE1024 / University Roll ID'}
                       value={form.roll_number}
                       onChange={e => set('roll_number', e.target.value)}
-                      required={isAmritaSelected}
+                      required
                       className={inputCls}
                     />
                   </Field>
 
                   {/* Department & Year */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Branch *" icon={null}>
-                      <select
-                        value={form.department}
-                        onChange={e => set('department', e.target.value)}
-                        required
-                        className={inputCls}
-                      >
-                        <option value="">Select Branch</option>
-                        {['CSE', 'CSE-AIE', 'AIDS', 'CCE', 'ECE', 'QUANTUM'].map(b => (
-                          <option key={b} value={b} className="bg-[#0e0b1a] text-slate-100">
-                            {b}
-                          </option>
-                        ))}
-                      </select>
-                    </Field>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {isAmritaSelected ? (
+                      <Field label="Branch (Amaravati Campus) *" icon={null}>
+                        <select
+                          value={form.department}
+                          onChange={e => set('department', e.target.value)}
+                          required
+                          className={inputCls}
+                        >
+                          <option value="">Select Branch</option>
+                          {['CSE', 'CSE-AIE', 'AIDS', 'CCE', 'ECE', 'QUANTUM'].map(b => (
+                            <option key={b} value={b} className="bg-[#0e0b1a] text-slate-100">
+                              {b}
+                            </option>
+                          ))}
+                        </select>
+                      </Field>
+                    ) : (
+                      <Field label="Branch / Department *" icon={null}>
+                        <input
+                          type="text"
+                          placeholder="e.g. Mechanical, Information Tech..."
+                          value={form.department}
+                          onChange={e => set('department', e.target.value)}
+                          required
+                          className={inputCls}
+                        />
+                      </Field>
+                    )}
+
                     <Field label="Year of Study *" icon={null}>
                       <select
                         value={form.year_of_study}
@@ -519,15 +540,19 @@ export default function RegisterPage() {
                     </Field>
                   </div>
 
-                  <Field label="City / Location" icon={null}>
-                    <input
-                      type="text"
-                      placeholder="e.g. Amaravati, Vijayawada, Chennai..."
-                      value={form.city}
-                      onChange={e => set('city', e.target.value)}
-                      className={inputCls}
-                    />
-                  </Field>
+                  {/* City / Location: Only for Other College Students, Removed for Amrita */}
+                  {!isAmritaSelected && (
+                    <Field label="City / Location *" icon={<MapPin size={15} />}>
+                      <input
+                        type="text"
+                        placeholder="e.g. Vijayawada, Chennai, Hyderabad..."
+                        value={form.city}
+                        onChange={e => set('city', e.target.value)}
+                        required
+                        className={inputCls}
+                      />
+                    </Field>
+                  )}
                 </motion.div>
               )}
 
@@ -573,12 +598,18 @@ export default function RegisterPage() {
                         <span className="text-slate-200">{form.roll_number}</span>
                       </div>
                     )}
-                    <div className="flex justify-between py-1">
+                    <div className="flex justify-between py-1 border-b border-white/5">
                       <span className="text-slate-400">Dept / Year</span>
                       <span className="text-slate-200">
-                        {form.department || '—'} ({form.year_of_study || '—'})
+                        {form.department || '—'} ({form.year_of_study ? `Year ${form.year_of_study}` : '—'})
                       </span>
                     </div>
+                    {!isAmritaSelected && form.city && (
+                      <div className="flex justify-between py-1">
+                        <span className="text-slate-400">Location</span>
+                        <span className="text-slate-200">{form.city}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* External student ID card upload inside Step 2 */}

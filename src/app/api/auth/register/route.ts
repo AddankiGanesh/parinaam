@@ -42,8 +42,19 @@ export async function POST(req: NextRequest) {
       return error(`Amrita students must use their official college email (e.g., yourname@${AMRITA_DOMAIN})`);
     }
 
-    if (student_type === 'other' && !college_name?.trim()) {
-      return error('College / Institution name is required for other college students');
+    if (student_type === 'other') {
+      if (!college_name?.trim()) return error('College / Institution name is required');
+      if (!department?.trim()) return error('Branch / Department name is required');
+      if (!city?.trim()) return error('City / Location is required');
+    }
+
+    if (student_type === 'amrita') {
+      if (!roll_number?.trim()) return error('Amrita Roll Number is required');
+      if (!department?.trim()) return error('Branch is required');
+    }
+
+    if (!year_of_study) {
+      return error('Year of study is required');
     }
 
     const isAmritaStudent = student_type === 'amrita' || (student_type !== 'other' && isAmritaDomain);
