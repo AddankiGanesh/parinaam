@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   Users, Calendar, IndianRupee, TicketCheck, Shield,
-  AlertTriangle, ChevronRight, CheckCircle, XCircle, Eye,
+  AlertTriangle, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye,
   Building2, Settings, ExternalLink, Sparkles, ArrowRight,
   TrendingUp, Check, X, QrCode, Megaphone, School, RefreshCw
 } from 'lucide-react';
@@ -39,6 +39,22 @@ interface ClubStat {
   color: string;
   published_events: string;
   total_registrations: string;
+}
+
+interface RecentUser {
+  id: string;
+  email: string;
+  full_name: string;
+  phone?: string;
+  college_name: string;
+  is_amrita_student: boolean;
+  roll_number: string;
+  department: string;
+  year_of_study: string;
+  verification_status: string;
+  platform_fee_paid: boolean;
+  pass_type: string;
+  created_at: string;
 }
 
 interface RecentRegistration {
@@ -104,12 +120,22 @@ export default function SuperAdminDashboard() {
   const [branchStats, setBranchStats] = useState<BranchStat[]>([]);
   const [yearStats, setYearStats] = useState<YearStat[]>([]);
   const [clubStats, setClubStats] = useState<ClubStat[]>([]);
+  const [recentUsers, setRecentUsers] = useState<RecentUser[]>([]);
   const [recentRegistrations, setRecentRegistrations] = useState<RecentRegistration[]>([]);
   const [clubs, setClubs] = useState<Club[]>([]);
   const [pendingUsers, setPendingUsers] = useState<PendingUser[]>([]);
   const [tab, setTab] = useState<'overview' | 'analytics' | 'clubs' | 'verify' | 'broadcast'>('overview');
   const [refreshing, setRefreshing] = useState(false);
   const [zoomedImage, setZoomedImage] = useState<string | null>(null);
+
+  // Live feed pagination & filter
+  const [feedType, setFeedType] = useState<'users' | 'events'>('users');
+  const [feedPage, setFeedPage] = useState(1);
+  const [feedPageSize, setFeedPageSize] = useState(10);
+
+  // KYC queue pagination
+  const [kycPage, setKycPage] = useState(1);
+  const [kycPageSize, setKycPageSize] = useState(6);
 
   // Broadcast ticker state
   const [broadcastText, setBroadcastText] = useState('Welcome to PARINAAM 2026! Registrations are officially open for all 12 Clubs.');
@@ -129,6 +155,7 @@ export default function SuperAdminDashboard() {
         setBranchStats(statsRes.data.branch_stats || []);
         setYearStats(statsRes.data.year_stats || []);
         setClubStats(statsRes.data.club_stats || []);
+        setRecentUsers(statsRes.data.recent_users || []);
         setRecentRegistrations(statsRes.data.recent_registrations || []);
       }
       if (clubsRes.success) setClubs(clubsRes.data.clubs || []);
@@ -158,6 +185,16 @@ export default function SuperAdminDashboard() {
   if (!user) return null;
 
   const totalRegistered = overview?.total_students || 0;
+
+  // Pagination helpers
+  const activeFeedList = feedType === 'users' ? recentUsers : recentRegistrations;
+  const feedTotal = activeFeedList.length;
+  const feedTotalPages = Math.max(1, Math.ceil(feedTotal / feedPageSize));
+  const paginatedFeed = activeFeedList.slice((feedPage - 1) * feedPageSize, feedPage * feedPageSize);
+
+  const kycTotal = pendingUsers.length;
+  const kycTotalPages = Math.max(1, Math.ceil(kycTotal / kycPageSize));
+  const paginatedKyc = pendingUsers.slice((kycPage - 1) * kycPageSize, kycPage * kycPageSize);
 
   return (
     <div className="min-h-screen bg-[#05030a] pt-20 pb-16">
@@ -356,61 +393,248 @@ export default function SuperAdminDashboard() {
 
             {/* Recent Registrations Table */}
             <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Users size={16} className="text-purple-400" /> Recent Live Registrations Feed
-                </h3>
-                <Link
-                  href="/superadmin/users"
-                  className="text-xs text-purple-400 hover:text-purple-300 font-medium"
-                >
-                  Manage All Users →
-                </Link>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Users size={16} className="text-purple-400" /> Live Registrations & Participant Stream
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Real-time feed of participants signing up and claiming passes on Parinaam
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  {/* Feed Toggle */}
+                  <div className="flex bg-black/40 border border-white/10 rounded-xl p-0.5 text-xs">
+                    <button
+                      onClick={() => { setFeedType('users'); setFeedPage(1); }}
+                      className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                        feedType === 'users'
+                          ? 'bg-purple-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Student Signups ({recentUsers.length})
+                    </button>
+                    <button
+                      onClick={() => { setFeedType('events'); setFeedPage(1); }}
+                      className={`px-3 py-1.5 rounded-lg font-semibold transition-all ${
+                        feedType === 'events'
+                          ? 'bg-purple-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      Event Enrollments ({recentRegistrations.length})
+                    </button>
+                  </div>
+
+                  <Link
+                    href="/superadmin/users"
+                    className="text-xs text-purple-400 hover:text-purple-300 font-medium px-2 py-1"
+                  >
+                    All Users ({totalRegistered}) →
+                  </Link>
+                </div>
               </div>
 
+              {/* Feed Table */}
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr className="border-b border-white/10 text-slate-500 text-[10px] uppercase tracking-wider">
-                      <th className="py-2.5">Student</th>
-                      <th className="py-2.5">Institution</th>
-                      <th className="py-2.5">Branch & Year</th>
-                      <th className="py-2.5">Event Enrolled</th>
-                      <th className="py-2.5">Timestamp</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-white/5">
-                    {recentRegistrations.length === 0 ? (
-                      <tr>
-                        <td colSpan={5} className="py-8 text-center text-slate-500">
-                          No recent event registrations yet.
-                        </td>
+                {feedType === 'users' ? (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-white/10 text-slate-500 text-[10px] uppercase tracking-wider">
+                        <th className="py-2.5">Participant</th>
+                        <th className="py-2.5">Campus / Roll No</th>
+                        <th className="py-2.5">Academic</th>
+                        <th className="py-2.5">KYC Status</th>
+                        <th className="py-2.5">Pass Status</th>
+                        <th className="py-2.5 text-right">Registered At (IST)</th>
                       </tr>
-                    ) : (
-                      recentRegistrations.map(r => (
-                        <tr key={r.id} className="hover:bg-white/[0.02]">
-                          <td className="py-3 font-semibold text-white">{r.full_name}</td>
-                          <td className="py-3 text-slate-400">
-                            {r.is_amrita_student ? 'Amrita Amaravati' : r.college_name}
-                          </td>
-                          <td className="py-3">
-                            <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-300 text-[10px]">
-                              {r.department || '—'} {r.year_of_study ? `(Yr ${r.year_of_study})` : ''}
-                            </span>
-                          </td>
-                          <td className="py-3">
-                            <span className="font-semibold text-purple-300">{r.event_name}</span>
-                            <span className="text-slate-500 text-[10px] block">{r.club_name}</span>
-                          </td>
-                          <td className="py-3 text-slate-500 font-mono text-[11px]">
-                            {new Date(r.registered_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {recentUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-8 text-center text-slate-500">
+                            No student user signups recorded yet.
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        paginatedFeed.map((u: any) => (
+                          <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="py-3">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold text-xs shrink-0">
+                                  {((u.full_name || u.email || 'S').charAt(0)).toUpperCase()}
+                                </div>
+                                <div>
+                                  <p className="font-semibold text-white">{u.full_name || 'Student'}</p>
+                                  <p className="text-[11px] text-slate-400">{u.email}</p>
+                                  {u.phone && <p className="text-[10px] text-slate-500 font-mono">{u.phone}</p>}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3">
+                              {u.is_amrita_student ? (
+                                <span className="inline-flex items-center text-[10px] font-semibold text-purple-300 bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 rounded-md">
+                                  Amrita Amaravati
+                                </span>
+                              ) : (
+                                <span className="text-slate-300 text-xs truncate max-w-[150px] block">
+                                  {u.college_name || 'External College'}
+                                </span>
+                              )}
+                              {u.roll_number && (
+                                <p className="font-mono text-[10px] text-slate-400 mt-0.5">{u.roll_number}</p>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              <div className="flex flex-wrap gap-1">
+                                {u.department ? (
+                                  <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-300 text-[10px]">
+                                    {u.department}
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-600 text-[10px]">—</span>
+                                )}
+                                {u.year_of_study && (
+                                  <span className="bg-white/5 border border-white/10 px-1.5 py-0.5 rounded text-slate-400 text-[10px]">
+                                    Yr {u.year_of_study}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="py-3">
+                              {u.verification_status === 'verified' ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                                  <CheckCircle size={10} /> Verified
+                                </span>
+                              ) : u.verification_status === 'rejected' ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded-full">
+                                  <XCircle size={10} /> Rejected
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                                  <AlertTriangle size={10} /> Waiting Approval
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-3">
+                              {u.verification_status !== 'verified' ? (
+                                <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md">
+                                  Pending Approval
+                                </span>
+                              ) : u.is_amrita_student ? (
+                                <span className="text-[10px] font-semibold text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">
+                                  Free Pass
+                                </span>
+                              ) : u.platform_fee_paid ? (
+                                <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                                  Paid Pass
+                                </span>
+                              ) : (
+                                <span className="text-[10px] text-slate-500">Unpaid</span>
+                              )}
+                            </td>
+                            <td className="py-3 text-right text-slate-400 font-mono text-[11px]">
+                              {formatDateTimeIST(u.created_at)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-white/10 text-slate-500 text-[10px] uppercase tracking-wider">
+                        <th className="py-2.5">Student</th>
+                        <th className="py-2.5">Institution</th>
+                        <th className="py-2.5">Branch & Year</th>
+                        <th className="py-2.5">Event Enrolled</th>
+                        <th className="py-2.5 text-right">Timestamp (IST)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {recentRegistrations.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="py-8 text-center text-slate-500">
+                            No event enrollments recorded yet.
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedFeed.map((r: any) => (
+                          <tr key={r.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="py-3 font-semibold text-white">{r.full_name}</td>
+                            <td className="py-3 text-slate-400">
+                              {r.is_amrita_student ? 'Amrita Amaravati' : r.college_name}
+                            </td>
+                            <td className="py-3">
+                              <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded text-slate-300 text-[10px]">
+                                {r.department || '—'} {r.year_of_study ? `(Yr ${r.year_of_study})` : ''}
+                              </span>
+                            </td>
+                            <td className="py-3">
+                              <span className="font-semibold text-purple-300">{r.event_name}</span>
+                              <span className="text-slate-500 text-[10px] block">{r.club_name}</span>
+                            </td>
+                            <td className="py-3 text-right text-slate-400 font-mono text-[11px]">
+                              {formatDateTimeIST(r.registered_at)}
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
               </div>
+
+              {/* Feed Pagination */}
+              {feedTotal > 0 && (
+                <div className="mt-4 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                  <div className="text-slate-400">
+                    Showing <strong className="text-white">{Math.min(feedTotal, (feedPage - 1) * feedPageSize + 1)}</strong> to{' '}
+                    <strong className="text-white">{Math.min(feedTotal, feedPage * feedPageSize)}</strong> of{' '}
+                    <strong className="text-white">{feedTotal}</strong> records
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500 text-[11px]">Per page:</span>
+                    {[5, 10, 20].map(sz => (
+                      <button
+                        key={sz}
+                        onClick={() => { setFeedPageSize(sz); setFeedPage(1); }}
+                        className={`px-2 py-1 rounded text-[11px] font-semibold border transition-all ${
+                          feedPageSize === sz
+                            ? 'bg-purple-600 text-white border-purple-600'
+                            : 'bg-white/5 text-slate-400 border-white/10 hover:text-white'
+                        }`}
+                      >
+                        {sz}
+                      </button>
+                    ))}
+
+                    <div className="flex items-center gap-1 ml-2">
+                      <button
+                        disabled={feedPage <= 1}
+                        onClick={() => setFeedPage(p => Math.max(1, p - 1))}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 border border-white/10 text-slate-300 disabled:pointer-events-none transition-colors"
+                      >
+                        <ChevronLeft size={14} />
+                      </button>
+                      <span className="px-2 text-slate-300 font-medium font-mono text-[11px]">
+                        {feedPage} / {feedTotalPages}
+                      </span>
+                      <button
+                        disabled={feedPage >= feedTotalPages}
+                        onClick={() => setFeedPage(p => Math.min(feedTotalPages, p + 1))}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 border border-white/10 text-slate-300 disabled:pointer-events-none transition-colors"
+                      >
+                        <ChevronRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -537,85 +761,118 @@ export default function SuperAdminDashboard() {
                 <p className="text-xs text-slate-400 mt-1">No pending student ID card approvals at this moment.</p>
               </div>
             ) : (
-              <div className="grid md:grid-cols-2 gap-4">
-                {pendingUsers.map(u => (
-                  <div key={u.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-bold text-white text-sm">{u.full_name || 'Student'}</h4>
-                          <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                            Pending Review
-                          </span>
+              <>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {paginatedKyc.map(u => (
+                    <div key={u.id} className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3.5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-white text-sm">{u.full_name || 'Student'}</h4>
+                            <span className="text-[10px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">
+                              Pending Review
+                            </span>
+                          </div>
+                          <p className="text-xs text-purple-300 font-mono mt-0.5">{u.email}</p>
+                          {u.phone && <p className="text-xs text-slate-400 font-mono mt-0.5">📞 {u.phone}</p>}
                         </div>
-                        <p className="text-xs text-purple-300 font-mono mt-0.5">{u.email}</p>
-                        {u.phone && <p className="text-xs text-slate-400 font-mono mt-0.5">📞 {u.phone}</p>}
+                        <span className="text-[11px] font-mono text-slate-500 shrink-0 text-right">
+                          {formatDateTimeIST(u.created_at)}
+                        </span>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-500 shrink-0 text-right">
-                        {formatDateTimeIST(u.created_at)}
-                      </span>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-2 text-xs bg-black/30 p-3 rounded-xl border border-white/5">
-                      <div>
-                        <span className="text-slate-500 text-[10px] block">College / University</span>
-                        <span className="font-semibold text-slate-200 truncate block">{u.college_name || 'External'}</span>
+                      <div className="grid grid-cols-2 gap-2 text-xs bg-black/30 p-3 rounded-xl border border-white/5">
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">College / University</span>
+                          <span className="font-semibold text-slate-200 truncate block">{u.college_name || 'External'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">Roll / Student ID</span>
+                          <span className="font-mono text-purple-300 truncate block">{u.roll_number || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">Branch</span>
+                          <span className="font-medium text-slate-200">{u.department || '—'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 text-[10px] block">Year of Study</span>
+                          <span className="font-medium text-slate-200">{u.year_of_study ? `Year ${u.year_of_study}` : '—'}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="text-slate-500 text-[10px] block">Roll / Student ID</span>
-                        <span className="font-mono text-purple-300 truncate block">{u.roll_number || 'N/A'}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 text-[10px] block">Branch</span>
-                        <span className="font-medium text-slate-200">{u.department || '—'}</span>
-                      </div>
-                      <div>
-                        <span className="text-slate-500 text-[10px] block">Year of Study</span>
-                        <span className="font-medium text-slate-200">{u.year_of_study ? `Year ${u.year_of_study}` : '—'}</span>
-                      </div>
-                    </div>
 
-                    {u.id_card_url && (
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between text-[11px] text-slate-400">
-                          <span>Uploaded College ID Card:</span>
-                          <button
+                      {u.id_card_url && (
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Uploaded College ID Card:</span>
+                            <button
+                              onClick={() => setZoomedImage(u.id_card_url)}
+                              className="text-purple-400 hover:text-purple-300 flex items-center gap-1 font-semibold"
+                            >
+                              <Eye size={12} /> Zoom ID Card
+                            </button>
+                          </div>
+                          <div
                             onClick={() => setZoomedImage(u.id_card_url)}
-                            className="text-purple-400 hover:text-purple-300 flex items-center gap-1 font-semibold"
+                            className="rounded-xl overflow-hidden border border-white/10 bg-black/60 cursor-pointer hover:border-purple-500/40 transition-colors"
                           >
-                            <Eye size={12} /> Zoom ID Card
-                          </button>
+                            <img
+                              src={u.id_card_url}
+                              alt="Student ID"
+                              className="w-full h-44 object-contain"
+                            />
+                          </div>
                         </div>
-                        <div
-                          onClick={() => setZoomedImage(u.id_card_url)}
-                          className="rounded-xl overflow-hidden border border-white/10 bg-black/60 cursor-pointer hover:border-purple-500/40 transition-colors"
-                        >
-                          <img
-                            src={u.id_card_url}
-                            alt="Student ID"
-                            className="w-full h-44 object-contain"
-                          />
-                        </div>
-                      </div>
-                    )}
+                      )}
 
-                    <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                        <button
+                          onClick={() => handleVerify(u.id, 'verified')}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-900/20"
+                        >
+                          <Check size={14} /> Approve & Grant Pass
+                        </button>
+                        <button
+                          onClick={() => handleVerify(u.id, 'rejected')}
+                          className="flex-1 bg-red-600/80 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+                        >
+                          <X size={14} /> Reject
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* KYC Pagination */}
+                {kycTotal > 0 && (
+                  <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+                    <span className="text-slate-400">
+                      Showing <strong className="text-white">{Math.min(kycTotal, (kycPage - 1) * kycPageSize + 1)}</strong> to{' '}
+                      <strong className="text-white">{Math.min(kycTotal, kycPage * kycPageSize)}</strong> of{' '}
+                      <strong className="text-white">{kycTotal}</strong> verification requests
+                    </span>
+
+                    <div className="flex items-center gap-1">
                       <button
-                        onClick={() => handleVerify(u.id, 'verified')}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-900/20"
+                        disabled={kycPage <= 1}
+                        onClick={() => setKycPage(p => Math.max(1, p - 1))}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 border border-white/10 text-slate-300 disabled:pointer-events-none transition-colors"
                       >
-                        <Check size={14} /> Approve & Grant Pass
+                        <ChevronLeft size={14} />
                       </button>
+                      <span className="px-2 text-slate-300 font-medium font-mono text-[11px]">
+                        Page {kycPage} of {kycTotalPages}
+                      </span>
                       <button
-                        onClick={() => handleVerify(u.id, 'rejected')}
-                        className="flex-1 bg-red-600/80 hover:bg-red-600 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
+                        disabled={kycPage >= kycTotalPages}
+                        onClick={() => setKycPage(p => Math.min(kycTotalPages, p + 1))}
+                        className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:opacity-30 border border-white/10 text-slate-300 disabled:pointer-events-none transition-colors"
                       >
-                        <X size={14} /> Reject
+                        <ChevronRight size={14} />
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
 
             {/* Photo Zoom Modal */}

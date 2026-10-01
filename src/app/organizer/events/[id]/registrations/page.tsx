@@ -173,13 +173,33 @@ export default function EventRegistrationsPage() {
         </div>
 
         {/* Pagination */}
-        {total > 50 && (
-          <div className="flex justify-center gap-3 mt-5">
-            <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm disabled:opacity-30">← Prev</button>
-            <span className="text-slate-400 text-sm self-center">Page {page} of {Math.ceil(total / 50)}</span>
-            <button disabled={page >= Math.ceil(total / 50)} onClick={() => setPage(p => p + 1)}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white text-sm disabled:opacity-30">Next →</button>
+        {total > 0 && (
+          <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+            <span className="text-slate-400">
+              Showing <strong className="text-white">{Math.min(total, (page - 1) * 50 + 1)}</strong> to{' '}
+              <strong className="text-white">{Math.min(total, page * 50)}</strong> of{' '}
+              <strong className="text-white">{total}</strong> attendees
+            </span>
+
+            <div className="flex items-center gap-2">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-slate-300 disabled:opacity-30 hover:bg-white/10 transition-colors"
+              >
+                ← Previous
+              </button>
+              <span className="text-slate-400 font-mono text-xs px-2">
+                Page {page} of {Math.max(1, Math.ceil(total / 50))}
+              </span>
+              <button
+                disabled={page >= Math.ceil(total / 50)}
+                onClick={() => setPage(p => p + 1)}
+                className="px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-slate-300 disabled:opacity-30 hover:bg-white/10 transition-colors"
+              >
+                Next →
+              </button>
+            </div>
           </div>
         )}
       </div>

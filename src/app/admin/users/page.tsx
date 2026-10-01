@@ -713,25 +713,33 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                className="flex items-center gap-1 text-xs font-semibold text-slate-300 disabled:text-slate-600 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:bg-transparent border border-white/10 transition-colors"
-              >
-                <ChevronLeft size={14} /> Previous
-              </button>
-              <span className="text-xs text-slate-400">
-                Page <strong className="text-white">{page}</strong> of <strong className="text-white">{totalPages}</strong>
-              </span>
-              <button
-                disabled={page >= totalPages}
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                className="flex items-center gap-1 text-xs font-semibold text-slate-300 disabled:text-slate-600 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:bg-transparent border border-white/10 transition-colors"
-              >
-                Next <ChevronRight size={14} />
-              </button>
+          {total > 0 && (
+            <div className="px-4 py-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+              <div className="text-slate-400">
+                Showing <strong className="text-white">{Math.min(total, (page - 1) * 20 + 1)}</strong> to{' '}
+                <strong className="text-white">{Math.min(total, page * 20)}</strong> of{' '}
+                <strong className="text-white">{total}</strong> students
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={page <= 1}
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-300 disabled:opacity-30 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:bg-transparent border border-white/10 transition-colors"
+                >
+                  <ChevronLeft size={14} /> Previous
+                </button>
+                <span className="text-xs text-slate-300 px-2 font-mono">
+                  Page <strong className="text-white">{page}</strong> of <strong className="text-white">{totalPages}</strong>
+                </span>
+                <button
+                  disabled={page >= totalPages}
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-300 disabled:opacity-30 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 disabled:bg-transparent border border-white/10 transition-colors"
+                >
+                  Next <ChevronRight size={14} />
+                </button>
+              </div>
             </div>
           )}
         </div>

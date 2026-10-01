@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
       branchStats,
       yearStats,
       clubStats,
+      recentUsers,
       recentRegistrations,
     ] = await Promise.all([
       db.query(`SELECT COUNT(*) FROM users WHERE role = 'student'`),
@@ -59,6 +60,15 @@ export async function GET(req: NextRequest) {
         ORDER BY total_registrations DESC
       `),
       db.query(`
+        SELECT id, email, full_name, phone, college_name, is_amrita_student,
+          roll_number, department, year_of_study, verification_status,
+          platform_fee_paid, pass_type, qr_token, created_at
+        FROM users
+        WHERE role = 'student'
+        ORDER BY created_at DESC
+        LIMIT 100
+      `),
+      db.query(`
         SELECT r.id, r.registered_at, r.status,
           u.full_name, u.college_name, u.is_amrita_student, u.department, u.year_of_study,
           e.name as event_name,
@@ -68,7 +78,7 @@ export async function GET(req: NextRequest) {
         JOIN events e ON r.event_id = e.id
         JOIN clubs c ON e.club_id = c.id
         ORDER BY r.registered_at DESC
-        LIMIT 10
+        LIMIT 100
       `),
     ]);
 
@@ -88,6 +98,7 @@ export async function GET(req: NextRequest) {
       branch_stats: branchStats.rows,
       year_stats: yearStats.rows,
       club_stats: clubStats.rows,
+      recent_users: recentUsers.rows,
       recent_registrations: recentRegistrations.rows,
     });
   } catch (err) {
