@@ -9,7 +9,6 @@ import {
   Calendar, MapPin, Sparkles, CheckCircle, Clock,
   ExternalLink, Building2, User, GraduationCap
 } from 'lucide-react';
-import { useRequireAuth } from '@/context/AuthContext';
 
 interface Registration {
   id: string;
@@ -24,14 +23,17 @@ interface Registration {
   club_color: string;
 }
 
+import { useRequireAuth, useAuth } from '@/context/AuthContext';
+
 export default function StudentPassPage() {
   const { user } = useRequireAuth();
+  const { refreshUser } = useAuth();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const passRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!user) return;
+    refreshUser();
     fetch('/api/registrations')
       .then(r => r.json())
       .then(d => {
@@ -39,7 +41,7 @@ export default function StudentPassPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [user]);
+  }, []);
 
   if (!user) return null;
 
@@ -116,7 +118,7 @@ export default function StudentPassPage() {
                     <Clock size={14} /> VERIFICATION PENDING
                   </span>
                   <p className="text-[11px] font-mono text-amber-400 mt-1">
-                    Awaiting Super Admin Approval
+                    Waiting for Approval
                   </p>
                 </>
               )}
@@ -151,7 +153,7 @@ export default function StudentPassPage() {
                   </div>
                   <p className="font-bold text-xs text-white">QR Pass Locked</p>
                   <p className="text-[11px] text-slate-400 mt-1.5 leading-relaxed">
-                    Digital QR Code will be activated automatically once Super Admin verifies your registration.
+                    Digital QR Code will be activated automatically once verification is approved.
                   </p>
                 </div>
               )}
@@ -203,7 +205,7 @@ export default function StudentPassPage() {
                     ? user.is_amrita_student
                       ? 'Official Amrita Student Pass — Unlimited access to all non-paid cultural & tech arenas.'
                       : 'Verified Delegate Pass — Carry valid government / college photo ID.'
-                    : 'Account Verification Pending — Waiting for Super Admin approval.'}
+                    : 'Account Verification Pending — Waiting for approval.'}
                 </p>
               </div>
             </div>

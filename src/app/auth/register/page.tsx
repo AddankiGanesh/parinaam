@@ -206,11 +206,11 @@ export default function RegisterPage() {
           <h2 className="text-2xl font-bold text-white mb-2">Registration Submitted!</h2>
 
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-4">
-            <AlertTriangle size={14} /> Verification Pending Approval
+            <AlertTriangle size={14} /> Waiting for Approval
           </div>
 
           <p className="text-slate-300 mb-6 text-xs leading-relaxed">
-            Your student profile has been created successfully. Super Admin is reviewing registration records. Once approved, you will have full access to register for festival events and competitions.
+            Your student profile has been created successfully and is currently waiting for approval. Once approved, your digital festival QR pass and event registrations will be activated automatically.
           </p>
 
           <button
@@ -662,7 +662,7 @@ export default function RegisterPage() {
                             Click to upload college ID card photo
                           </p>
                           <p className="text-[10px] text-slate-500 mt-1">
-                            Clear front-side photo or scan for Super Admin verification
+                            Clear front-side photo or scan for verification approval
                           </p>
                           <input
                             id="register-id-card-upload"
@@ -689,7 +689,7 @@ export default function RegisterPage() {
                     ) : (
                       <div className="flex items-center gap-2">
                         <IdCard size={16} className="text-amber-400 shrink-0" />
-                        <span>Your uploaded ID card and details will be reviewed by Super Admin for event registration approval.</span>
+                        <span>Your uploaded ID card and details will be reviewed for event registration approval.</span>
                       </div>
                     )}
                   </div>
