@@ -33,3 +33,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# raw club media sources
+/advika/
+/avinya/
+/avustra/
+/chakravyuha/
+/logos/
+/nritya sparsh/
+/relu/
+/robotics/
+/spataswara/
