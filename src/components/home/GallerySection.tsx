@@ -57,7 +57,7 @@ const ClubCardMedia: React.FC<ClubCardMediaProps> = ({ item, styling }) => {
 
   return (
     <div
-      className="relative h-60 w-full overflow-hidden bg-[#0b0718]"
+      className="relative h-64 sm:h-72 w-full overflow-hidden bg-[#0b0718]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -277,27 +277,10 @@ export const GallerySection = () => {
               <div
                 key={item.id}
                 onClick={() => handleOpenClub(item)}
-                className={`group relative rounded-2xl overflow-hidden bg-[#0c081a] border border-purple-950/80 ${styling.border} transition-all duration-300 cursor-pointer shadow-xl ${styling.glow} flex flex-col justify-between`}
+                className={`group relative rounded-2xl overflow-hidden bg-[#0c081a] border border-purple-950/80 ${styling.border} transition-all duration-300 cursor-pointer shadow-xl ${styling.glow}`}
               >
                 {/* Image Banner / Slideshow Component */}
                 <ClubCardMedia item={item} styling={styling} />
-
-                {/* Signature Events Tags */}
-                <div className="p-4 space-y-2 bg-[#0c081a]">
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">
-                    Previous Events Conducted:
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {item.eventsConducted.map((evt, i) => (
-                      <span
-                        key={i}
-                        className="text-[10px] font-mono bg-white/5 border border-white/10 text-slate-300 px-2 py-0.5 rounded-md"
-                      >
-                        {evt}
-                      </span>
-                    ))}
-                  </div>
-                </div>
               </div>
             );
           })}
