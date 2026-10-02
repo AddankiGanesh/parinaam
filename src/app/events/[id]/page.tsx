@@ -295,8 +295,8 @@ export default function EventDetailPage() {
                   </div>
                 )}
 
-                {/* Register button */}
-                {!myReg && (
+                {/* Register button — Rendered ONLY for guests and students */}
+                {!myReg && (!user || user.role === 'student') && (
                   <>
                     {isTeamEvent && showRegForm && (
                       <div className="mb-3">
@@ -331,6 +331,15 @@ export default function EventDetailPage() {
                     )}
                   </>
                 )}
+
+                {/* Admin Mode Notice */}
+                {user && (user.role === 'club_admin' || user.role === 'super_admin') && (
+                  <div className="p-3 bg-white/5 border border-white/10 rounded-xl text-center">
+                    <p className="text-purple-300 text-xs font-semibold font-mono">Viewing Event in Admin Mode</p>
+                    <p className="text-slate-500 text-[11px] mt-1">Student registration is disabled for administrator accounts.</p>
+                  </div>
+                )}
+
 
                 {/* Club info */}
                 <div className="mt-4 pt-4 border-t border-white/10">

@@ -22,11 +22,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cartItemIds, setCartItemIds] = useState<string[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
+  const isStudent = user ? user.role === 'student' : true;
   // Key storage per user or guest
   const storageKey = user?.id ? `${CART_STORAGE_KEY}_${user.id}` : CART_STORAGE_KEY;
 
   // Load from localStorage on mount / user change
   useEffect(() => {
+    if (user && user.role !== 'student') {
+      setCartItemIds([]);
+      setIsLoaded(true);
+      return;
+    }
     try {
       const stored = localStorage.getItem(storageKey);
       if (stored) {
@@ -39,7 +45,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoaded(true);
     }
-  }, [storageKey]);
+  }, [storageKey, user]);
+
 
   // Sync to localStorage
   const saveCart = (newIds: string[]) => {
