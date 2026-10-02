@@ -700,6 +700,31 @@ class MockDbEngine {
       }
     }
 
+    if (qLower.startsWith('update events set') && qLower.includes('where id = $')) {
+      const idMatch = q.match(/where\s+id\s*=\s*\$(\d+)/i);
+      const eventId = idMatch ? params[Number(idMatch[1]) - 1] : undefined;
+      const event = this.events.find(e => e.id === eventId);
+      if (!event) return { rows: [], rowCount: 0 };
+
+      const whereIndex = qLower.indexOf(' where ');
+      const assignments = q.slice('update events set'.length, whereIndex).split(',');
+      const eventFields = event as unknown as Record<string, unknown>;
+      for (const assignment of assignments) {
+        const match = assignment.match(/^\s*([a-z_][\w]*)\s*=\s*\$(\d+)\s*$/i);
+        if (!match || !(match[1] in eventFields)) continue;
+
+        const field = match[1];
+        const value = params[Number(match[2]) - 1];
+        if (['rules', 'rounds', 'coordinators'].includes(field) && typeof value === 'string') {
+          eventFields[field] = JSON.parse(value);
+        } else {
+          eventFields[field] = value;
+        }
+      }
+
+      return { rows: [event], rowCount: 1 };
+    }
+
     // Generic fallback for updates & deletes
     return { rows: [], rowCount: 0 };
   }
