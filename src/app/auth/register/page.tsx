@@ -223,10 +223,15 @@ export default function RegisterPage() {
         }),
       });
 
-      const json = await res.json();
+      let json: any = {};
+      try {
+        json = await res.json();
+      } catch {
+        json = { success: false, error: 'Registration server error. Please try again.' };
+      }
       setLoading(false);
 
-      if (json.success) {
+      if (json.success && json.data) {
         setRegisteredUserSession(json.data.user);
         setPendingRazorpayOrder(json.data.razorpay_order);
 
@@ -252,11 +257,28 @@ export default function RegisterPage() {
   };
 
   // Launch Razorpay for ₹1000 Outside Student Pass
-  const handleRazorpayPayment = () => {
+  const handleRazorpayPayment = async () => {
     setError('');
     setPaymentProcessing(true);
 
-    const rzpOrder = pendingRazorpayOrder;
+    let rzpOrder = pendingRazorpayOrder;
+    if (!rzpOrder || !rzpOrder.order_id) {
+      try {
+        const orderRes = await fetch('/api/payments/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'platform_fee' }),
+        });
+        const orderJson = await orderRes.json();
+        if (orderJson.success && orderJson.data) {
+          rzpOrder = orderJson.data;
+          setPendingRazorpayOrder(rzpOrder);
+        }
+      } catch {
+        // Continue with default fallback
+      }
+    }
+
     const rzpKey = rzpOrder?.key_id || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_Tiu069JKxrr7S3';
 
     if (typeof window.Razorpay === 'undefined') {

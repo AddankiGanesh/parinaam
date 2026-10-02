@@ -1,4 +1,4 @@
-﻿import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface MockUser {
@@ -259,27 +259,31 @@ class MockDbEngine {
         email, passwordHash, full_name, phone,
         college_name, is_amrita_student, roll_number, department,
         year_of_study, city, verification_status, qr_token,
-        email_verify_token, email_verified
+        email_verify_token, email_verified, platform_fee_paid, id_card_url, pass_type
       ] = params;
 
+      const isAmrita = Boolean(is_amrita_student);
+      const isPaid = platform_fee_paid !== undefined ? Boolean(platform_fee_paid) : isAmrita;
+
       const newUser: MockUser = {
-        id: uuidv4(),
+        id: `usr-${uuidv4().slice(0, 8)}`,
         email: email?.toString().toLowerCase().trim(),
         password_hash: passwordHash,
         full_name,
         phone: phone || null,
         role: 'student',
         club_id: null,
-        college_name: college_name || (is_amrita_student ? 'Amrita Vishwa Vidyapeetham' : null),
-        is_amrita_student: Boolean(is_amrita_student),
+        college_name: college_name || (isAmrita ? 'Amrita Vishwa Vidyapeetham, Amaravati' : null),
+        is_amrita_student: isAmrita,
         roll_number: roll_number || null,
         department: department || null,
         year_of_study: year_of_study || null,
         city: city || null,
-        verification_status: verification_status || (is_amrita_student ? 'verified' : 'pending'),
-        platform_fee_paid: Boolean(is_amrita_student),
+        verification_status: verification_status === 'verified' || isAmrita ? 'verified' : (verification_status === 'rejected' ? 'rejected' : 'pending'),
+        platform_fee_paid: isPaid,
         qr_token: qr_token || uuidv4().replace(/-/g, ''),
-        pass_type: 'DELEGATE PASS',
+        pass_type: pass_type || (isAmrita ? 'AMRITA_FREE' : 'DELEGATE_PASS_1000'),
+        id_card_url: id_card_url || null,
         email_verified: Boolean(email_verified),
         email_verify_token: email_verify_token || null,
         created_at: new Date().toISOString(),
@@ -297,6 +301,8 @@ class MockDbEngine {
           verification_status: newUser.verification_status,
           qr_token: newUser.qr_token,
           platform_fee_paid: newUser.platform_fee_paid,
+          id_card_url: newUser.id_card_url,
+          pass_type: newUser.pass_type,
         }],
         rowCount: 1,
       };
@@ -580,11 +586,20 @@ class MockDbEngine {
 
     // 16. UPDATE USERS
     if (qLower.startsWith('update users set') || qLower.startsWith('update users')) {
-      const target = this.users.find(u => u.id === params[params.length - 1] || u.id === params[0]);
+      const target = this.users.find(u => params.includes(u.id));
       if (target) {
+        if (qLower.includes('platform_fee_paid = true') || qLower.includes('platform_fee_paid = true')) {
+          target.platform_fee_paid = true;
+          target.verification_status = 'verified';
+          target.pass_type = 'DELEGATE_PASS_1000';
+          if (params[0] && typeof params[0] === 'string' && params[0].startsWith('pay_')) {
+            target.platform_payment_id = params[0];
+          }
+        }
         if (qLower.includes('verification_status =')) {
-          target.verification_status = params[0] || target.verification_status;
-          target.verification_note = params[1] || '';
+          if (params[0] === 'verified' || params[0] === 'rejected' || params[0] === 'pending') {
+            target.verification_status = params[0];
+          }
           if (params[0] === 'verified') target.platform_fee_paid = true;
         }
         return { rows: [target], rowCount: 1 };
@@ -612,15 +627,31 @@ class MockDbEngine {
 
     // 18. INSERT INTO PAYMENTS
     if (qLower.startsWith('insert into payments')) {
+      let userId: string = params[0]?.toString();
+      let type: string = 'platform_fee';
+      let amount: number = 100000;
+      let orderId: string = `order_${Date.now()}`;
+      let status: string = 'created';
+
+      if (qLower.includes("'platform_fee'")) {
+        type = 'platform_fee';
+        amount = Number(params[1]) || 100000;
+        orderId = params[2]?.toString() || `order_${Date.now()}`;
+      } else {
+        type = params[1]?.toString() || 'event_fee';
+        amount = Number(params[2] ?? params[4]) || 0;
+        orderId = params[3]?.toString() || params[5]?.toString() || `order_${Date.now()}`;
+      }
+
       const newPay = {
         id: `pay-${uuidv4().slice(0, 8)}`,
-        user_id: params[0],
-        type: params[1],
-        event_id: params[2] || null,
-        registration_id: params[3] || null,
-        amount: params[4] || 0,
-        razorpay_order_id: params[5] || `order_${Date.now()}`,
-        status: params[6] || 'created',
+        user_id: userId,
+        type,
+        event_id: null,
+        registration_id: null,
+        amount,
+        razorpay_order_id: orderId,
+        status,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };

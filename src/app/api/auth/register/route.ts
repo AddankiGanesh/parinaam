@@ -83,9 +83,9 @@ export async function POST(req: NextRequest) {
 
     // Verification Status & Platform Fee Policy:
     // - Amrita students: Instantly verified, free pass (platform_fee_paid: true, pass_type: 'AMRITA_FREE')
-    // - Outside students: Instantly verified upon successful payment of ₹1000 pass
+    // - Outside students: 'pending' initially, instantly marked 'verified' upon successful ₹1000 payment
     const isInitiallyPaid = isAmritaStudent;
-    const initialVerificationStatus = isAmritaStudent ? 'verified' : 'pending_payment';
+    const initialVerificationStatus = isAmritaStudent ? 'verified' : 'pending';
     const passType = isAmritaStudent ? 'AMRITA_FREE' : 'DELEGATE_PASS_1000';
 
     // Insert user into PostgreSQL
