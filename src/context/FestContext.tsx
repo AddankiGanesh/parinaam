@@ -46,7 +46,7 @@ const INITIAL_DEMO_PARTICIPANT: Participant = {
   id: 'demo-part-1',
   participantId: 'PARINAAM26-8K3N91',
   name: 'Deepak E',
-  email: 'deepak.e@amrita.edu',
+  email: 'parinaam@av.amrita.edu',
   phone: '+91 98765 43210',
   college: 'Amrita Vishwa Vidyapeetham',
   department: 'Computer Science & Engineering',

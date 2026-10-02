@@ -13,7 +13,7 @@ export const FEST_CONFIG: FestConfig = {
   expectedParticipants: '12,000+',
   participatingColleges: '150+',
   totalEvents: '35+',
-  contactEmail: 'webteam@parinaamfest.org',
+  contactEmail: 'parinaam@av.amrita.edu',
   helplinePhone: '+91 98765 43210',
   socialLinks: {
     instagram: 'https://instagram.com/parinaam_fest',

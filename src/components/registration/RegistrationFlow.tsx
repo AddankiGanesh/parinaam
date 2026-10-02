@@ -21,7 +21,7 @@ export const RegistrationFlow: React.FC<RegistrationFlowProps> = ({ initialEvent
   // Step 1 State
   const [basicInfo, setBasicInfo] = useState({
     name: 'Deepak E',
-    email: 'deepak.e@amrita.edu',
+    email: 'parinaam@av.amrita.edu',
     phone: '+91 98765 43210',
     college: 'Amrita Vishwa Vidyapeetham',
     department: 'Computer Science & Engineering',
