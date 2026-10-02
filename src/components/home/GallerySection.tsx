@@ -11,7 +11,6 @@ import {
   Film,
   Sparkles,
   CheckCircle2,
-  ArrowRight,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -304,16 +303,6 @@ export const GallerySection = () => {
                         </span>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Card Action Hint */}
-                  <div className="pt-2 flex items-center justify-between text-xs font-mono text-purple-400 group-hover:text-purple-300">
-                    <span>
-                      {item.photos && item.photos.length > 0
-                        ? `Explore Gallery (${item.photos.length} Photos)`
-                        : 'View Club Archive'}
-                    </span>
-                    <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </div>
