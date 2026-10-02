@@ -5,7 +5,7 @@ import { PoolClient } from 'pg';
 import { db } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
 import { success, error, unauthorized, serverError } from '@/lib/apiResponse';
-import { calculatePayableFees } from '@/lib/institutionPolicy';
+import { calculatePayableFees, isStudentProfileComplete } from '@/lib/institutionPolicy';
 
 // ---------------------------------------------------------------------------
 // Internal error class — user-facing validation errors raised inside the
@@ -128,12 +128,19 @@ export async function POST(req: NextRequest) {
 
     // ── Pre-transaction user check (read-only, no locks needed) ──────────────
     const userRes = await db.query(
-      `SELECT id, email, is_amrita_student, verification_status, platform_fee_paid
+      `SELECT id, email, role, phone, college_name, department, year_of_study, is_amrita_student, id_card_url, verification_status, platform_fee_paid
        FROM users WHERE id = $1`,
       [session.userId],
     );
     const user = userRes.rows[0];
     if (!user) return unauthorized();
+
+    if (!isStudentProfileComplete(user)) {
+      return error(
+        'Platform registration/profile completion is required before registering for events. Please complete your profile in your dashboard first.',
+        400,
+      );
+    }
 
     if (user.verification_status !== 'verified') {
       return error(
@@ -141,6 +148,7 @@ export async function POST(req: NextRequest) {
         403,
       );
     }
+
 
     // =========================================================================
     // PHASE A — PostgreSQL Transaction

@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 import { ShoppingBag, X, Trash2, ArrowRight, ShieldCheck, Loader2, Sparkles, AlertCircle, CheckCircle2, Award } from 'lucide-react';
 import Link from 'next/link';
-import { isInstitutionalEmail, STANDARD_PLATFORM_FEE_INR } from '@/lib/institutionPolicy';
+import { isInstitutionalEmail, STANDARD_PLATFORM_FEE_INR, isStudentProfileComplete } from '@/lib/institutionPolicy';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -69,10 +69,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (!isStudentProfileComplete(user)) {
+      setCheckoutError('Platform registration profile completion is required before event registration checkout. Please complete your profile first.');
+      return;
+    }
+
     if (user.verification_status !== 'verified') {
       setCheckoutError('Your account verification is pending Super Admin approval before event registration.');
       return;
     }
+
 
     if (!user.is_amrita_student && !user.platform_fee_paid) {
       onClose();
