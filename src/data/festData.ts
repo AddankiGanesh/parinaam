@@ -153,13 +153,38 @@ export const GALLERY_ITEMS: GalleryClubItem[] = [
       },
       {
         url: '/images/clubs/chakravyuha/chakravyuha-photo-4.jpg',
+        title: 'Hackathon Prototyping & Collaboration',
+        caption: 'Teams collaborating on architectural design, code review, and full-stack software development.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-5.jpg',
+        title: 'Grand Hackathon Stage Showcase',
+        caption: 'Chakravyuha members and participants gathered on the main auditorium stage for celebration.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-6.jpg',
+        title: 'Championship Trophy & Prize Ceremony',
+        caption: 'Winning teams receiving certificates, medals, and national cash prize accolades.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-7.jpg',
+        title: 'Team Problem-Solving Sprint',
+        caption: 'Engineers debugging algorithmic edge cases and stress-testing backends under tight deadlines.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-8.jpg',
+        title: 'Hackathon Project Defense',
+        caption: 'Participants pitching live software and hardware solutions to academic and industry juries.'
+      },
+      {
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-9.jpg',
         title: 'Technical Presentation & Talks',
         caption: 'Student engineers presenting research architectures and software systems to fellow participants.'
       },
       {
-        url: '/images/clubs/chakravyuha/chakravyuha-photo-5.jpg',
+        url: '/images/clubs/chakravyuha/chakravyuha-photo-10.jpg',
         title: 'Innovation Defense & Demo',
-        caption: 'Participants pitching live software and hardware solutions to academic and industry juries.'
+        caption: 'Finalists presenting breakthrough models and algorithmic pipelines to evaluation panels.'
       },
     ],
     caption: '150+ teams decoding cryptographic ciphers and investigating cyber crime logs in the flagship murder mystery hackathon.',
