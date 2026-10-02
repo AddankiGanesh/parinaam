@@ -10,6 +10,7 @@ import {
   CheckCircle, Layers, ArrowLeft
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { EventImageUploader } from '@/components/admin/EventImageUploader';
 
 const CATEGORIES = [
   'Technical', 'Cultural', 'Coding & Hackathon', 'Robotics',
@@ -305,16 +306,10 @@ export default function CreateClubEventPage({
                         required
                       />
                     </FormField>
-                    <FormField label="Event Poster URL *">
-                      <input
-                        type="url"
-                        value={form.poster_url}
-                        onChange={e => set('poster_url', e.target.value)}
-                        placeholder="https://..."
-                        className={inp}
-                        required
-                      />
-                    </FormField>
+                    <EventImageUploader
+                      value={form.poster_url}
+                      onChange={url => set('poster_url', url)}
+                    />
                   </>
                 )}
 

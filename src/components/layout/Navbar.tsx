@@ -13,11 +13,10 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const { cartCount } = useCart();
+  const { cartCount, isCartOpen, openCart, closeCart } = useCart();
 
   const isProfileComplete = isStudentProfileComplete(user);
 
@@ -27,7 +26,7 @@ export const Navbar = () => {
       router.push('/dashboard/profile');
       return;
     }
-    setCartOpen(true);
+    openCart();
   };
 
   useEffect(() => {
@@ -59,11 +58,15 @@ export const Navbar = () => {
           { name: 'ALL USERS', href: '/superadmin/users' },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
-          { name: 'GALLERY', href: '/#gallery' },
-          { name: 'SPONSORS', href: '/#sponsors' },
+        ]
+      : user.role === 'club_admin'
+      ? [
+          { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
+          { name: 'QR SCANNER', href: `/admin/${user.club_slug || 'chakravyuha'}/scan` },
+          { name: 'EVENTS', href: '/events' },
+          { name: 'SCHEDULE', href: '/schedule' },
         ]
       : [
-          { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
@@ -184,6 +187,36 @@ export const Navbar = () => {
                           className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
                           <DashIcon size={15} className="text-purple-400" /> {dashboardLabel}
                         </Link>
+
+                        {user.role === 'super_admin' && (
+                          <>
+                            <Link href="/superadmin/scan" onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <span className="text-cyan-400 text-xs font-bold">QR</span> Universal Gate Scanner
+                            </Link>
+                            <Link href="/superadmin/users" onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <User size={15} className="text-purple-400" /> User Management & KYC
+                            </Link>
+                            <Link href="/superadmin/settings" onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <Shield size={15} className="text-slate-400" /> Platform Settings
+                            </Link>
+                          </>
+                        )}
+
+                        {user.role === 'club_admin' && (
+                          <>
+                            <Link href={`/admin/${user.club_slug || 'chakravyuha'}/scan`} onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <span className="text-cyan-400 text-xs font-bold">QR</span> Attendance Scanner
+                            </Link>
+                            <Link href={`/admin/${user.club_slug || 'chakravyuha'}/events/new`} onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <span className="text-purple-400 text-xs font-bold">+</span> Create New Event
+                            </Link>
+                          </>
+                        )}
 
                         {user.role === 'student' && (
                           <>
@@ -307,7 +340,7 @@ export const Navbar = () => {
       </header>
 
       {!loading && user && user.role === 'student' && (
-        <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+        <CartDrawer isOpen={isCartOpen} onClose={closeCart} />
       )}
     </>
   );
