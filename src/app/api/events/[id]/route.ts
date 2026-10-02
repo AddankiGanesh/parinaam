@@ -126,6 +126,8 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       values
     );
 
+    if (result.rows.length === 0) return notFound('Event not found');
+
     return success({ event: result.rows[0] });
   } catch (err) {
     console.error('Update event error:', err);

@@ -7,7 +7,7 @@ import { motion } from 'framer-motion';
 import {
   Plus, Calendar, Users, QrCode, ArrowLeft,
   ChevronRight, Shield, CheckCircle, Clock,
-  ExternalLink, Building2, Eye, Sparkles, Filter
+  ExternalLink, Building2, Sparkles, Filter
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -336,14 +336,6 @@ export default function ClubAdminPortal({
                       className="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-medium px-3.5 py-2 rounded-xl transition-all"
                     >
                       Edit
-                    </Link>
-                    <Link
-                      href={`/events/${event.id}`}
-                      target="_blank"
-                      className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-400 hover:text-white rounded-xl transition-all"
-                      title="Preview Event Details"
-                    >
-                      <Eye size={14} />
                     </Link>
                   </div>
                 </div>
