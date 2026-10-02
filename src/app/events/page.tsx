@@ -277,7 +277,7 @@ function EventCard({ event, index, user }: { event: Event; index: number; user: 
                 ? 'bg-white/5 text-slate-600 cursor-not-allowed'
                 : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-900/20'
             }`}>
-            {isFull ? 'Full' : !event.registration_open ? 'Closed' : 'Register →'}
+            {isFull ? 'Full' : !event.registration_open ? 'Closed' : "I'm Interested"}
           </button>
         </div>
       </div>

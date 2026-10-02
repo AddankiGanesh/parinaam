@@ -319,8 +319,9 @@ export default function EventDetailPage() {
                         !event.registration_open ? 'Registration Closed' :
                         !user ? 'Sign in to Register' :
                         user.verification_status !== 'verified' ? '⏳ Verification Pending' :
-                        isTeamEvent && !showRegForm ? 'Register Team →' :
-                        `Register${event.fee > 0 ? ` · ₹${event.fee}` : ''} →`}
+                        isTeamEvent && !showRegForm ? "I'm Interested (Team)" :
+                        `I'm Interested${event.fee > 0 ? ` · ₹${event.fee}` : ''}`}
+
                     </button>
                     {!user && (
                       <p className="text-slate-600 text-xs text-center mt-2">
