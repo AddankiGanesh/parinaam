@@ -131,14 +131,24 @@ export const SponsorsSection = () => {
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/sponsor"
-              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-sm tracking-wide uppercase font-mono shadow-[0_0_25px_rgba(217,70,239,0.5)] hover:shadow-[0_0_35px_rgba(217,70,239,0.8)] transition-all active:scale-95 border border-fuchsia-400/40 cursor-pointer"
+              className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-purple-600 to-fuchsia-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-sm tracking-wide uppercase font-mono shadow-[0_0_25px_rgba(217,70,239,0.5)] hover:shadow-[0_0_35px_rgba(217,70,239,0.8)] transition-all active:scale-95 border border-fuchsia-400/40 cursor-pointer text-center"
             >
               <span>Partner With Us / Register as Sponsor</span>
               <ArrowRight className="w-4 h-4 text-amber-300 animate-pulse" />
             </Link>
+
+            <a
+              href="/docs/PARINAAM_2026_Sponsorship_Brochure.pdf"
+              download="PARINAAM_2026_Sponsorship_Brochure.pdf"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-7 py-4 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-semibold text-sm border border-purple-800/80 transition-all font-mono uppercase tracking-wider text-center"
+            >
+              <span>Download 7-Page Brochure</span>
+            </a>
           </div>
 
           <p className="text-xs font-mono text-purple-300/70 pt-1">

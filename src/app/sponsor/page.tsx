@@ -362,6 +362,71 @@ export default function SponsorRegistrationPage() {
               </p>
             </div>
 
+            {/* Single Page Brochure Display Section (Above Register Your Company Form) */}
+            <div className="bg-[#0c091d]/90 border border-purple-900/50 rounded-2xl p-6 sm:p-8 backdrop-blur-md shadow-2xl space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-purple-900/40 pb-4">
+                <div className="space-y-1">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-950/60 border border-purple-500/30 text-[11px] font-mono text-fuchsia-300">
+                    <Sparkles size={12} className="text-amber-400" />
+                    <span className="uppercase tracking-widest font-bold">FESTIVAL AT A GLANCE</span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white font-['Pixelify_Sans',_monospace]">
+                    Sponsorship Brochure &amp; Highlights
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-400">
+                    Quick single-page summary of demographics, student reach, flagship arenas, and branding packages.
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href="/docs/PARINAAM_2026_Sponsorship_Brochure.pdf"
+                    download="PARINAAM_2026_Sponsorship_Brochure.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 via-pink-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-mono text-xs font-bold tracking-wider uppercase shadow-[0_0_20px_rgba(217,70,239,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer border border-fuchsia-400/40"
+                  >
+                    <Download size={15} />
+                    <span>Download Full 7-Page Brochure (PDF)</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Pure Image Single Page Brochure */}
+              <div className="relative rounded-2xl overflow-hidden border border-purple-500/30 bg-[#030108] shadow-[0_0_40px_rgba(0,0,0,0.8)] group">
+                <img
+                  src="/images/parinaam-one-page-brochure.png"
+                  alt="PARINAAM 2026 Sponsorship Brochure (One Page)"
+                  className="w-full h-auto max-h-[920px] object-contain mx-auto"
+                />
+                <div className="p-3.5 bg-gradient-to-r from-purple-950/90 via-[#0e071c] to-purple-950/90 border-t border-purple-900/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-slate-300">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    PARINAAM 2026 • SINGLE PAGE SPONSORSHIP BROCHURE
+                  </span>
+                  <div className="flex items-center gap-4">
+                    <a
+                      href="/images/parinaam-one-page-brochure.png"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-fuchsia-300 hover:text-white flex items-center gap-1 transition-colors underline underline-offset-4"
+                    >
+                      <span>Open High-Res Image</span>
+                      <ArrowRight size={12} />
+                    </a>
+                    <a
+                      href="/docs/PARINAAM_2026_Sponsorship_Brochure.pdf"
+                      download="PARINAAM_2026_Sponsorship_Brochure.pdf"
+                      className="text-amber-300 hover:text-amber-200 flex items-center gap-1 font-bold transition-colors"
+                    >
+                      <Download size={12} />
+                      <span>Download Main 7-Page PDF</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Registration Form & Corporate Desk Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
@@ -695,15 +760,16 @@ export default function SponsorRegistrationPage() {
                   <p className="text-xs text-slate-400 font-sans">
                     Official Parinaam 2026 PDF brochure containing full campus event maps &amp; past sponsors.
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert('Sponsorship Brochure download initiated. The PDF will also be sent to your email.');
-                    }}
-                    className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-purple-950/60 hover:bg-purple-900/60 text-xs font-mono text-fuchsia-200 border border-purple-500/30 transition-colors cursor-pointer"
+                  <a
+                    href="/docs/PARINAAM_2026_Sponsorship_Brochure.pdf"
+                    download="PARINAAM_2026_Sponsorship_Brochure.pdf"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-fuchsia-600 via-pink-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-xs font-mono font-bold text-white shadow-[0_0_20px_rgba(217,70,239,0.35)] transition-all cursor-pointer border border-fuchsia-400/40"
                   >
-                    <span>Download Brochure (PDF)</span>
-                  </button>
+                    <Download size={15} />
+                    <span>Download 7-Page Brochure (PDF)</span>
+                  </a>
                 </div>
               </div>
 
