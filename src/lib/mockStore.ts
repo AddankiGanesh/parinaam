@@ -527,6 +527,115 @@ class MockDbEngine {
       }
     }
 
+    // 17. INSERT INTO REGISTRATIONS
+    if (qLower.startsWith('insert into registrations')) {
+      const newReg = {
+        id: `reg-${uuidv4().slice(0, 8)}`,
+        user_id: params[0],
+        event_id: params[1],
+        team_name: params[2] || null,
+        team_members: params[3] || '[]',
+        amount_paid: params[4] || 0,
+        status: params[5] || 'PENDING',
+        payment_status: params[6] || 'pending',
+        payment_id: params[7] || null,
+        registered_at: new Date().toISOString(),
+        confirmed_at: params[5] === 'CONFIRMED' ? new Date().toISOString() : null,
+      };
+      this.registrations.push(newReg);
+      return { rows: [newReg], rowCount: 1 };
+    }
+
+    // 18. INSERT INTO PAYMENTS
+    if (qLower.startsWith('insert into payments')) {
+      const newPay = {
+        id: `pay-${uuidv4().slice(0, 8)}`,
+        user_id: params[0],
+        type: params[1],
+        event_id: params[2] || null,
+        registration_id: params[3] || null,
+        amount: params[4] || 0,
+        razorpay_order_id: params[5] || `order_${Date.now()}`,
+        status: params[6] || 'created',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      this.payments.push(newPay);
+      return { rows: [newPay], rowCount: 1 };
+    }
+
+    // 19. SELECT FROM REGISTRATIONS
+    if (qLower.includes('from registrations')) {
+      let result = [...this.registrations];
+      if (qLower.includes('user_id =') && qLower.includes('event_id =')) {
+        result = result.filter(r => r.user_id === params[0] && r.event_id === params[1]);
+      } else if (qLower.includes('payment_id =')) {
+        result = result.filter(r => r.payment_id === params[0] || r.payment_id === params[1]);
+      } else if (qLower.includes('user_id =')) {
+        result = result.filter(r => r.user_id === params[0]);
+      }
+      return { rows: result, rowCount: result.length };
+    }
+
+    // 20. SELECT FROM PAYMENTS
+    if (qLower.includes('from payments')) {
+      let result = [...this.payments];
+      if (qLower.includes('razorpay_order_id =')) {
+        result = result.filter(p => p.razorpay_order_id === params[0] || p.razorpay_order_id === params[1]);
+      } else if (qLower.includes('id =')) {
+        result = result.filter(p => p.id === params[0]);
+      } else if (qLower.includes('user_id =')) {
+        result = result.filter(p => p.user_id === params[0]);
+      }
+      return { rows: result, rowCount: result.length };
+    }
+
+    // 21. UPDATE REGISTRATIONS
+    if (qLower.startsWith('update registrations')) {
+      const paymentId = params.find(p => typeof p === 'string' && (p.startsWith('pay-') || p.startsWith('order_')));
+      const userId = params.find(p => typeof p === 'string' && (p.startsWith('usr-') || p.startsWith('part-')));
+      let updatedCount = 0;
+      this.registrations.forEach(r => {
+        if ((paymentId && r.payment_id === paymentId) || (userId && r.user_id === userId)) {
+          if (qLower.includes("status = 'confirmed'") || qLower.includes("status = 'CONFIRMED'")) {
+            r.status = 'CONFIRMED';
+            r.payment_status = 'paid';
+            r.confirmed_at = new Date().toISOString();
+          } else if (qLower.includes("status = 'cancelled'") || qLower.includes("status = 'CANCELLED'")) {
+            r.status = 'CANCELLED';
+            r.payment_status = 'refunded';
+          }
+          updatedCount++;
+        }
+      });
+      return { rows: [], rowCount: updatedCount || 1 };
+    }
+
+    // 22. UPDATE PAYMENTS
+    if (qLower.startsWith('update payments')) {
+      const payId = params[params.length - 1] || params[0];
+      const payment = this.payments.find(p => p.id === payId || p.razorpay_order_id === payId);
+      if (payment) {
+        if (qLower.includes("status = 'paid'")) payment.status = 'paid';
+        if (qLower.includes("status = 'failed'")) payment.status = 'failed';
+        if (qLower.includes("status = 'refunded'")) payment.status = 'refunded';
+        if (params[0] && typeof params[0] === 'string' && params[0].startsWith('pay_')) {
+          payment.razorpay_payment_id = params[0];
+        }
+        return { rows: [payment], rowCount: 1 };
+      }
+    }
+
+    // 23. UPDATE EVENTS ENROLLED
+    if (qLower.startsWith('update events set enrolled')) {
+      const evtId = params[params.length - 1] || params[0];
+      const event = this.events.find(e => e.id === evtId);
+      if (event) {
+        event.enrolled = (event.enrolled || 0) + 1;
+        return { rows: [event], rowCount: 1 };
+      }
+    }
+
     // Generic fallback for updates & deletes
     return { rows: [], rowCount: 0 };
   }

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { db } from '@/lib/db';
 import { signToken, COOKIE_NAME, COOKIE_OPTIONS } from '@/lib/auth';
 import { success, error, serverError } from '@/lib/apiResponse';
+import { isInstitutionalEmail } from '@/lib/institutionPolicy';
 
 const AMRITA_DOMAIN = 'av.students.amrita.edu';
 
@@ -35,11 +36,11 @@ export async function POST(req: NextRequest) {
 
     const emailLower = email.toLowerCase().trim();
 
-    // Check if Amrita student based on selection or email domain
-    const isAmritaDomain = emailLower.endsWith(`@${AMRITA_DOMAIN}`) || emailLower.endsWith('.amrita.edu') || emailLower.endsWith('@amrita.edu');
+    // Check if Amrita student based on selection or recognized institutional email domain
+    const isAmritaDomain = isInstitutionalEmail(emailLower);
     
     if (student_type === 'amrita' && !isAmritaDomain) {
-      return error(`Amrita students must use their official college email (e.g., yourname@${AMRITA_DOMAIN})`);
+      return error(`Amrita students must use their official college email (e.g., yourname@av.students.amrita.edu)`);
     }
 
     if (student_type === 'other') {

@@ -1,18 +1,48 @@
 'use client';
 
-import React, { useState } from 'react';
-import { MOCK_EVENTS } from '../../data/eventsData';
+import React, { useState, useEffect } from 'react';
 import { EventCard } from '../events/EventCard';
 import { EventDetailModal } from '../events/EventDetailModal';
 import { FestEvent, EventCategory } from '../../types';
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+
+function mapApiEventToFestEvent(e: any): FestEvent {
+  return {
+    id: e.id,
+    name: e.name,
+    eventCode: e.event_code || 'EVT',
+    category: (e.category || 'Other') as EventCategory,
+    tagline: e.tagline || '',
+    shortDescription: e.short_description || e.tagline || '',
+    fullDescription: e.full_description || e.short_description || '',
+    venue: e.venue || 'Campus Venue',
+    date: e.date_start ? new Date(e.date_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Fest Days',
+    startTime: e.start_time || '10:00 AM',
+    endTime: e.end_time || '05:00 PM',
+    day: (e.day_number === 2 ? 2 : 1) as 1 | 2 | 3,
+    teamSize: e.min_team_size === e.max_team_size ? (e.min_team_size === 1 ? 'Individual' : `${e.min_team_size} Members`) : `${e.min_team_size}-${e.max_team_size} Members`,
+    minTeamSize: Number(e.min_team_size) || 1,
+    maxTeamSize: Number(e.max_team_size) || 1,
+    fee: Number(e.fee) || 0,
+    prizePool: e.prize_pool || 'Certificates & Trophies',
+    rules: Array.isArray(e.rules) ? e.rules : (typeof e.rules === 'string' ? JSON.parse(e.rules) : []),
+    eligibility: e.eligibility || '',
+    coordinators: Array.isArray(e.coordinators) ? e.coordinators : [],
+    image: e.poster_url || 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=1000',
+    rulebookUrl: e.rulebook_url || '',
+    isPopular: Boolean(e.is_popular || e.is_featured),
+    registrationOpen: Boolean(e.registration_open),
+  };
+}
 
 export const FeaturedEvents = () => {
   const [selectedEvent, setSelectedEvent] = useState<FestEvent | null>(null);
   const [activeCategory, setActiveCategory] = useState<EventCategory | 'All'>('All');
+  const [events, setEvents] = useState<FestEvent[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const router = useRouter();
 
@@ -25,9 +55,21 @@ export const FeaturedEvents = () => {
     'Workshops',
   ];
 
+  useEffect(() => {
+    fetch('/api/events?status=published&limit=50')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.data.events)) {
+          setEvents(data.data.events.map(mapApiEventToFestEvent));
+        }
+      })
+      .catch(err => console.error('Failed to load published events:', err))
+      .finally(() => setLoading(false));
+  }, []);
+
   const filteredEvents = activeCategory === 'All'
-    ? MOCK_EVENTS.slice(0, 6)
-    : MOCK_EVENTS.filter((e) => e.category === activeCategory);
+    ? events.slice(0, 6)
+    : events.filter((e) => e.category === activeCategory);
 
   const handleQuickRegister = (event: FestEvent) => {
     router.push(user ? '/events' : `/auth/register?event=${event.id}`);
@@ -79,7 +121,12 @@ export const FeaturedEvents = () => {
         </div>
 
         {/* Event Cards Grid */}
-        {filteredEvents.length === 0 ? (
+        {loading ? (
+          <div className="py-16 flex items-center justify-center text-purple-400 gap-2 font-mono text-sm">
+            <Loader2 className="w-6 h-6 animate-spin" />
+            <span>Loading festival events...</span>
+          </div>
+        ) : filteredEvents.length === 0 ? (
           <div className="py-16 px-6 rounded-3xl bg-white/[0.02] border border-dashed border-white/10 text-center max-w-2xl mx-auto">
             <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center mx-auto mb-4 text-purple-400">
               <Sparkles size={26} />
@@ -127,3 +174,4 @@ export const FeaturedEvents = () => {
     </section>
   );
 };
+
