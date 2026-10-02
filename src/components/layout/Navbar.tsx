@@ -33,6 +33,7 @@ export const Navbar = () => {
           { name: 'MY PASS', href: '/dashboard/pass' },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
+          { name: 'GALLERY', href: '/#gallery' },
         ]
       : user.role === 'super_admin'
       ? [
@@ -40,15 +41,17 @@ export const Navbar = () => {
           { name: 'ALL USERS', href: '/superadmin/users' },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
+          { name: 'GALLERY', href: '/#gallery' },
         ]
       : [
           { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
+          { name: 'GALLERY', href: '/#gallery' },
         ]
     : [
-        { name: 'SCHEDULE', href: '/schedule' },
         { name: 'EVENTS', href: '/events' },
+        { name: 'SCHEDULE', href: '/schedule' },
         { name: 'GALLERY', href: '/#gallery' },
         { name: 'SPONSORS', href: '/sponsor' },
       ];

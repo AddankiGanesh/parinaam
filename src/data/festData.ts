@@ -9,7 +9,7 @@ export const FEST_CONFIG: FestConfig = {
   venue: 'Main Campus & Innovation Complex',
   collegeName: 'Amrita Vishwa Vidyapeetham',
   locationCity: 'Amaravati, Andhra Pradesh',
-  totalPrizePool: '₹15,000,000+',
+  totalPrizePool: '₹15L+',
   expectedParticipants: '12,000+',
   participatingColleges: '150+',
   totalEvents: '35+',
@@ -29,7 +29,7 @@ export const GALLERY_ITEMS = [
     title: 'HackArena Midnight Crunch',
     category: 'Hackathon',
     imageUrl: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=1000&q=80',
-    caption: '150+ teams building non-stop for 36 hours at the Central Library'
+    caption: 'Teams building non-stop for 36 hours at the Central Library'
   },
   {
     id: 'g2',

@@ -49,7 +49,7 @@ export const FestIdentity = () => {
           </h2>
           
           <p className="text-base sm:text-lg text-slate-300 leading-relaxed pt-2 font-normal">
-            Parinaam 2026 brings together students from over 150 engineering, science, and arts institutions across India. Whether you are debugging at 3:00 AM in the innovation hall or performing under stage spotlights, this is where India's brightest talent converges.
+            Parinaam 2026 brings together students from engineering, science, and arts institutions across India. Whether you are debugging at 3:00 AM in the innovation hall or performing under stage spotlights, this is where India's brightest talent converges.
           </p>
         </div>
 

@@ -3,20 +3,37 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FEST_CONFIG } from '../../data/festData';
-import { ArrowRight, Calendar, MapPin, Trophy, Ticket, Flame, Building2, Sparkles } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Trophy, Ticket, Flame, Building2, Sparkles, Zap, Users } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+
+// Target Date: October 11, 2026, 09:00:00 AM IST
+const FEST_START_TIME = new Date('2026-10-11T09:00:00+05:30').getTime();
+
+const calculateTimeLeft = () => {
+  const difference = FEST_START_TIME - Date.now();
+  if (difference <= 0) {
+    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+  }
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / (1000 * 60)) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+};
 
 export const Hero = () => {
   const { user } = useAuth();
-  // Countdown Timer state to Oct 16, 2026
-  const [timeLeft, setTimeLeft] = useState({ days: 16, hours: 14, minutes: 22, seconds: 45 });
+  
+  // Accurate Real-Time Countdown Timer state to Oct 11, 2026, 09:00 AM IST
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+    setTimeLeft(calculateTimeLeft());
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
-        return { ...prev, seconds: 59, minutes: prev.minutes > 0 ? prev.minutes - 1 : 59 };
-      });
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -100,7 +117,7 @@ export const Hero = () => {
                 href="/events"
                 className="px-7 py-3.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white font-semibold text-sm sm:text-base border border-fuchsia-800/80 transition-all text-center tracking-wide"
               >
-                EXPLORE 35+ COMPETITIONS
+                EXPLORE COMPETITIONS
               </Link>
             </div>
 
@@ -156,43 +173,34 @@ export const Hero = () => {
         </div>
 
         {/* Live Ticker & Stats Strip */}
-        <div className="pt-10 border-t border-purple-900/50 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
+        <div className="pt-10 border-t border-purple-900/50 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="bg-purple-950/50 p-5 rounded-2xl border border-purple-900/60 text-center hover:border-fuchsia-500/40 transition-colors">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">
               Fest Countdown
             </span>
-            <div className="flex items-baseline justify-center gap-1.5 font-mono">
-              <span className="text-2xl font-bold text-white">{timeLeft.days}d</span>
-              <span className="text-2xl font-bold text-white">{timeLeft.hours}h</span>
-              <span className="text-2xl font-bold text-[#ff00ff]">{timeLeft.minutes}m</span>
-              <span className="text-xs text-slate-400">{timeLeft.seconds}s</span>
+            <div className="flex items-baseline justify-center gap-2 font-mono">
+              <span className="text-2xl sm:text-3xl font-bold text-white">{mounted ? timeLeft.days : '0'}d</span>
+              <span className="text-2xl sm:text-3xl font-bold text-white">{mounted ? timeLeft.hours : '0'}h</span>
+              <span className="text-2xl sm:text-3xl font-bold text-[#ff00ff]">{mounted ? timeLeft.minutes : '0'}m</span>
+              <span className="text-xs sm:text-sm text-slate-400">{mounted ? timeLeft.seconds : '0'}s</span>
             </div>
           </div>
 
-          <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
+          <div className="bg-purple-950/50 p-5 rounded-2xl border border-purple-900/60 text-center hover:border-amber-500/40 transition-colors">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">
               National Prize Pool
             </span>
-            <span className="text-2xl font-extrabold text-amber-400 font-mono">
+            <span className="text-2xl sm:text-3xl font-extrabold text-amber-400 font-mono">
               {FEST_CONFIG.totalPrizePool}
             </span>
           </div>
 
-          <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
-              Participating Colleges
+          <div className="bg-purple-950/50 p-5 rounded-2xl border border-purple-900/60 text-center hover:border-cyan-500/40 transition-colors">
+            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1.5">
+              Official Campus Clubs
             </span>
-            <span className="text-2xl font-extrabold text-white font-mono">
-              {FEST_CONFIG.participatingColleges}
-            </span>
-          </div>
-
-          <div className="bg-purple-950/50 p-4.5 rounded-2xl border border-purple-900/60 text-center">
-            <span className="text-xs text-slate-400 uppercase tracking-wider block mb-1">
-              Expected Delegates
-            </span>
-            <span className="text-2xl font-extrabold text-emerald-400 font-mono">
-              {FEST_CONFIG.expectedParticipants}
+            <span className="text-2xl sm:text-3xl font-extrabold text-cyan-400 font-mono">
+              12 Active Clubs
             </span>
           </div>
         </div>
