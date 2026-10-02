@@ -75,14 +75,22 @@ export async function POST(req: NextRequest) {
          WHERE (id = $3 OR razorpay_order_id = $4) AND user_id = $5`,
         [payId, sig, payment_db_id ?? null, razorpay_order_id ?? null, session.userId],
       );
-      await db.query(
+      const userUpdateRes = await db.query(
         `UPDATE users
-         SET platform_fee_paid = TRUE, platform_payment_id = $1, platform_fee_paid_at = NOW()
-         WHERE id = $2`,
+         SET platform_fee_paid = TRUE, 
+             verification_status = 'verified', 
+             pass_type = 'DELEGATE_PASS_1000', 
+             platform_payment_id = $1, 
+             platform_fee_paid_at = NOW()
+         WHERE id = $2
+         RETURNING id, full_name, email, qr_token, verification_status, platform_fee_paid, pass_type`,
         [payId, session.userId],
       );
+      const updatedUser = userUpdateRes.rows[0];
       return success({
-        message: 'Platform registration complete! You can now register for events.',
+        message: 'Payment of ₹1000 received! Your Official Festival Pass and QR Code have been activated.',
+        user: updatedUser,
+        qr_token: updatedUser?.qr_token,
       });
     }
 

@@ -67,7 +67,7 @@ export async function POST(req: NextRequest) {
       const configResult = await db.query(
         `SELECT value FROM platform_config WHERE key = 'platform_fee'`,
       );
-      const amount = parseInt(configResult.rows[0]?.value || '99') * 100; // paise
+      const amount = parseInt(configResult.rows[0]?.value || '1000') * 100; // paise (₹1000)
 
       const userResult = await db.query(
         `SELECT is_amrita_student, platform_fee_paid FROM users WHERE id = $1`,
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       const userRow = userResult.rows[0];
 
       if (userRow?.is_amrita_student) {
-        await db.query(`UPDATE users SET platform_fee_paid = true WHERE id = $1`, [session.userId]);
+        await db.query(`UPDATE users SET platform_fee_paid = true, verification_status = 'verified' WHERE id = $1`, [session.userId]);
         return success({
           order_id: `free_amrita_${Date.now()}`,
           amount: 0,
@@ -100,9 +100,9 @@ export async function POST(req: NextRequest) {
         order_id: pfOrderId,
         amount,
         currency: 'INR',
-        description: 'Parinaam 2026 Platform Registration Fee',
+        description: 'Parinaam 2026 Official Festival Pass (₹1000 Fixed Entry)',
         payment_db_id: paymentResult.rows[0].id,
-        key_id: process.env.RAZORPAY_KEY_ID || '',
+        key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_Tiu069JKxrr7S3',
       });
     }
 
