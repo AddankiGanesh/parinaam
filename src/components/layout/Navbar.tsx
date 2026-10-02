@@ -52,6 +52,7 @@ export const Navbar = () => {
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
       : user.role === 'super_admin'
       ? [
@@ -60,18 +61,20 @@ export const Navbar = () => {
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
       : [
           { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
     : [
         { name: 'EVENTS', href: '/events' },
         { name: 'SCHEDULE', href: '/schedule' },
         { name: 'GALLERY', href: '/#gallery' },
-        { name: 'SPONSORS', href: '/sponsor' },
+        { name: 'SPONSORS', href: '/#sponsors' },
       ];
 
   const dashboardHref =
