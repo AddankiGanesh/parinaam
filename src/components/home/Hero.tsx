@@ -166,21 +166,18 @@ export const Hero = () => {
               </div>
 
               {/* Bottom Details Strip */}
-              <div className="mt-3.5 px-1 flex items-center justify-between text-xs font-mono text-slate-400">
+              <div className="relative z-30 mt-3.5 px-1 flex items-center justify-between text-xs font-mono text-slate-400 pointer-events-auto">
                 <span className="flex items-center gap-1.5 text-slate-300">
                   <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
                   MAIN ACADEMIC & INNOVATION COMPLEX
                 </span>
                 <button
                   type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowVenueModal(true);
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-fuchsia-500/15 hover:bg-fuchsia-500/30 border border-fuchsia-500/40 hover:border-fuchsia-400 text-fuchsia-300 hover:text-white font-bold transition-all text-xs font-mono shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:scale-105 active:scale-95 cursor-pointer"
+                  onClick={() => setShowVenueModal(true)}
+                  className="relative z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 hover:bg-fuchsia-500/35 border border-fuchsia-500/50 hover:border-fuchsia-400 text-fuchsia-300 hover:text-white font-bold transition-all text-xs font-mono shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:scale-105 active:scale-95 cursor-pointer pointer-events-auto select-none"
                 >
-                  <span>FESTIVAL VENUE</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-fuchsia-400" />
+                  <span className="pointer-events-none">FESTIVAL VENUE</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-fuchsia-400 pointer-events-none" />
                 </button>
               </div>
 
