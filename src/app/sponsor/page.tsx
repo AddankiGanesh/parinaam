@@ -393,37 +393,12 @@ export default function SponsorRegistrationPage() {
               </div>
 
               {/* Pure Image Single Page Brochure */}
-              <div className="relative rounded-2xl overflow-hidden border border-purple-500/30 bg-[#030108] shadow-[0_0_40px_rgba(0,0,0,0.8)] group">
+              <div className="relative rounded-2xl overflow-hidden border border-purple-500/30 bg-[#030108] shadow-[0_0_40px_rgba(0,0,0,0.8)]">
                 <img
                   src="/images/parinaam-one-page-brochure.png"
                   alt="PARINAAM 2026 Sponsorship Brochure (One Page)"
-                  className="w-full h-auto max-h-[920px] object-contain mx-auto"
+                  className="w-full h-auto max-h-[950px] object-contain mx-auto"
                 />
-                <div className="p-3.5 bg-gradient-to-r from-purple-950/90 via-[#0e071c] to-purple-950/90 border-t border-purple-900/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-slate-300">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    PARINAAM 2026 • SINGLE PAGE SPONSORSHIP BROCHURE
-                  </span>
-                  <div className="flex items-center gap-4">
-                    <a
-                      href="/images/parinaam-one-page-brochure.png"
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-fuchsia-300 hover:text-white flex items-center gap-1 transition-colors underline underline-offset-4"
-                    >
-                      <span>Open High-Res Image</span>
-                      <ArrowRight size={12} />
-                    </a>
-                    <a
-                      href="/docs/PARINAAM_2026_Sponsorship_Brochure.pdf"
-                      download="PARINAAM_2026_Sponsorship_Brochure.pdf"
-                      className="text-amber-300 hover:text-amber-200 flex items-center gap-1 font-bold transition-colors"
-                    >
-                      <Download size={12} />
-                      <span>Download Main 7-Page PDF</span>
-                    </a>
-                  </div>
-                </div>
               </div>
             </div>
 
