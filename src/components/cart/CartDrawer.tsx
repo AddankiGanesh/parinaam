@@ -25,7 +25,7 @@ interface EventItem {
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
-  const { cartItemIds, removeFromCart, clearCart } = useCart();
+  const { cartItemIds, removeFromCart, clearCart, refreshRegistrations } = useCart();
   const { user } = useAuth();
   const router = useRouter();
 
@@ -110,6 +110,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
       // Step 2A: Free Events Cart (Amount = 0)
       if (orderData.data.is_free) {
         clearCart();
+        await refreshRegistrations();
         setSuccessMessage('Registration confirmed for all selected free events!');
         setTimeout(() => {
           onClose();
@@ -141,6 +142,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
 
         if (verifyData.success) {
           clearCart();
+          await refreshRegistrations();
           setSuccessMessage(verifyData.data?.message || 'Registrations confirmed successfully!');
           setTimeout(() => {
             onClose();
@@ -163,6 +165,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           handler: function (response: any) {
             verifyPaymentServer(response.razorpay_payment_id, response.razorpay_signature);
           },
+          modal: {
+            ondismiss: function () {
+              setProcessingPayment(false);
+              setCheckoutError('Checkout was closed. Your 15-minute capacity hold remains active.');
+            },
+          },
           prefill: {
             name: user.full_name,
             email: user.email,
@@ -170,6 +178,10 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           theme: { color: '#8b5cf6' },
         };
         const rzp = new (window as any).Razorpay(options);
+        rzp.on('payment.failed', function (response: any) {
+          setProcessingPayment(false);
+          setCheckoutError(response.error?.description || 'Payment failed. Please try again.');
+        });
         rzp.open();
       } else {
         // Dev Fallback / Mock Razorpay verification when Razorpay script isn't loaded
