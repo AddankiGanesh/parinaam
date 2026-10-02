@@ -282,27 +282,20 @@ export const GallerySection = () => {
                 {/* Image Banner / Slideshow Component */}
                 <ClubCardMedia item={item} styling={styling} />
 
-                {/* Card Content & Description */}
-                <div className="p-5 space-y-4 flex-1 flex flex-col justify-between">
-                  <p className="text-xs sm:text-sm text-slate-300/90 leading-relaxed font-sans line-clamp-3">
-                    {item.description}
-                  </p>
-
-                  {/* Signature Events Tags */}
-                  <div className="space-y-2 pt-3 border-t border-purple-950/80">
-                    <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">
-                      Previous Events Conducted:
-                    </span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {item.eventsConducted.map((evt, i) => (
-                        <span
-                          key={i}
-                          className="text-[10px] font-mono bg-white/5 border border-white/10 text-slate-300 px-2 py-0.5 rounded-md"
-                        >
-                          {evt}
-                        </span>
-                      ))}
-                    </div>
+                {/* Signature Events Tags */}
+                <div className="p-4 space-y-2 bg-[#0c081a]">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 block font-semibold">
+                    Previous Events Conducted:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {item.eventsConducted.map((evt, i) => (
+                      <span
+                        key={i}
+                        className="text-[10px] font-mono bg-white/5 border border-white/10 text-slate-300 px-2 py-0.5 rounded-md"
+                      >
+                        {evt}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </div>
