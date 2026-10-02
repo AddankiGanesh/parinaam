@@ -59,13 +59,8 @@ const nextConfig = {
         permanent: false,
       },
       {
-        source: '/superadmin/scan',
-        destination: '/organizer/scan',
-        permanent: false,
-      },
-      {
         source: '/admin/scan',
-        destination: '/organizer/scan',
+        destination: '/superadmin/scan',
         permanent: false,
       },
     ];

@@ -190,6 +190,10 @@ export const Navbar = () => {
 
                         {user.role === 'super_admin' && (
                           <>
+                            <Link href="/superadmin/scan" onClick={() => setUserMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
+                              <span className="text-cyan-400 text-xs font-bold">QR</span> Universal Gate Scanner
+                            </Link>
                             <Link href="/superadmin/users" onClick={() => setUserMenuOpen(false)}
                               className="flex items-center gap-3 px-4 py-2.5 text-slate-300 hover:text-white hover:bg-white/5 text-sm transition-colors">
                               <User size={15} className="text-purple-400" /> User Management & KYC
