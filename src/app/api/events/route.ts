@@ -17,9 +17,11 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = (page - 1) * limit;
 
-    let whereClause = 'WHERE e.status = $1';
-    const params: unknown[] = [status];
-    let paramIdx = 2;
+    // 'all' is a special value meaning no status filter (used by organizer dashboard)
+    let whereClause = status === 'all' ? 'WHERE 1=1' : 'WHERE e.status = $1';
+    const params: unknown[] = status === 'all' ? [] : [status];
+    let paramIdx = status === 'all' ? 1 : 2;
+
 
     if (clubId) {
       whereClause += ` AND e.club_id = $${paramIdx}`;

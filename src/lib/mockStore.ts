@@ -1,4 +1,4 @@
-import bcrypt from 'bcryptjs';
+﻿import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface MockUser {
@@ -142,7 +142,8 @@ const USERS_DATA: MockUser[] = [
   })),
 ];
 
-// Initial starter events (empty so club admins add real events)
+// Events are added exclusively by Club Admins / Super Admin via the admin portal.
+// No seed data - all events come from the PostgreSQL database in production.
 const EVENTS_DATA: MockEvent[] = [];
 
 // Global in-memory storage singleton
@@ -160,6 +161,57 @@ class MockDbEngine {
     registration_open: 'true',
     amrita_domain: 'av.students.amrita.edu',
   };
+
+  private _filterEvents(qLower: string, params: any[] = []): MockEvent[] {
+    let list = [...this.events];
+
+    // Status filter
+    if (qLower.includes('e.status =') || qLower.includes('status =')) {
+      const statusParam = params.find(p => typeof p === 'string' && ['published', 'draft', 'archived'].includes(p.toLowerCase()));
+      if (statusParam) {
+        list = list.filter(e => e.status.toLowerCase() === statusParam.toLowerCase());
+      } else {
+        list = list.filter(e => e.status === 'published');
+      }
+    }
+
+    // Club filter (by id or slug)
+    if (qLower.includes('club_id =') || qLower.includes('e.club_id =')) {
+      const clubIdParam = params.find(p => typeof p === 'string' && (this.clubs.some(c => c.id === p || c.slug === p) || p.startsWith('club-')));
+      if (clubIdParam) {
+        const targetClub = this.clubs.find(c => c.id === clubIdParam || c.slug === clubIdParam);
+        const resolvedId = targetClub ? targetClub.id : clubIdParam;
+        list = list.filter(e => e.club_id === resolvedId);
+      }
+    }
+
+    // Category filter
+    if (qLower.includes('category =') || qLower.includes('e.category =')) {
+      const knownCats = ['technical', 'cultural', 'coding & hackathon', 'robotics', 'gaming', 'workshops', 'quiz & literary', 'arts & media', 'management'];
+      const catParam = params.find(p => typeof p === 'string' && knownCats.includes(p.toLowerCase()));
+      if (catParam) {
+        list = list.filter(e => e.category.toLowerCase() === catParam.toLowerCase());
+      }
+    }
+
+    // Search filter (ILIKE)
+    if (qLower.includes('ilike')) {
+      const searchParam = params.find(p => typeof p === 'string' && p.startsWith('%') && p.endsWith('%'));
+      if (searchParam) {
+        const cleanTerm = searchParam.replace(/%/g, '').toLowerCase().trim();
+        if (cleanTerm) {
+          list = list.filter(e => 
+            (e.name || '').toLowerCase().includes(cleanTerm) ||
+            (e.tagline || '').toLowerCase().includes(cleanTerm) ||
+            (e.short_description || '').toLowerCase().includes(cleanTerm) ||
+            (e.event_code || '').toLowerCase().includes(cleanTerm)
+          );
+        }
+      }
+    }
+
+    return list;
+  }
 
   async executeQuery(text: string, params: any[] = []): Promise<{ rows: any[]; rowCount: number }> {
     const q = text.trim();
@@ -288,12 +340,23 @@ class MockDbEngine {
         return { rows: [row], rowCount: 1 };
       }
 
-      // Filtered events
-      let filtered = [...this.events];
-      if (params.length > 0) {
-        // If club_id filter is in query
-        if (qLower.includes('club_id =')) {
-          filtered = filtered.filter(e => e.club_id === params[0]);
+      // Dynamically filter events
+      let filtered = this._filterEvents(qLower, params);
+
+      // Sort: is_featured desc, is_popular desc
+      filtered.sort((a, b) => {
+        if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+        if (a.is_popular !== b.is_popular) return a.is_popular ? -1 : 1;
+        return 0;
+      });
+
+      // Pagination
+      if (qLower.includes('limit') && qLower.includes('offset')) {
+        const numParams = params.filter(p => typeof p === 'number');
+        if (numParams.length >= 2) {
+          const limit = numParams[numParams.length - 2];
+          const offset = numParams[numParams.length - 1];
+          filtered = filtered.slice(offset, offset + limit);
         }
       }
 
@@ -407,7 +470,8 @@ class MockDbEngine {
         return { rows: [{ count: count.toString() }], rowCount: 1 };
       }
       if (qLower.includes('from events')) {
-        return { rows: [{ count: this.events.length.toString() }], rowCount: 1 };
+        const count = this._filterEvents(qLower, params).length;
+        return { rows: [{ count: count.toString() }], rowCount: 1 };
       }
       if (qLower.includes('from registrations')) {
         const count = qLower.includes("status = 'confirmed'")
