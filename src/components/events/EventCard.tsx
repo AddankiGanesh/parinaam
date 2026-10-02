@@ -40,7 +40,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
       return;
     }
     if (isStudent) {
-      toggleCartItem(event.id);
+      toggleCartItem(event.id, event.name);
     }
   };
 

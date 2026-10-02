@@ -13,11 +13,10 @@ export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [cartOpen, setCartOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading, logout } = useAuth();
-  const { cartCount } = useCart();
+  const { cartCount, isCartOpen, openCart, closeCart } = useCart();
 
   const isProfileComplete = isStudentProfileComplete(user);
 
@@ -27,7 +26,7 @@ export const Navbar = () => {
       router.push('/dashboard/profile');
       return;
     }
-    setCartOpen(true);
+    openCart();
   };
 
   useEffect(() => {
@@ -307,7 +306,7 @@ export const Navbar = () => {
       </header>
 
       {!loading && user && user.role === 'student' && (
-        <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+        <CartDrawer isOpen={isCartOpen} onClose={closeCart} />
       )}
     </>
   );
