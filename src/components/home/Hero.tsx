@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FEST_CONFIG } from '../../data/festData';
-import { ArrowRight, Calendar, MapPin, Trophy, Ticket, Flame, Building2, Sparkles, Zap, Users } from 'lucide-react';
+import { ArrowRight, Calendar, MapPin, Trophy, Ticket, Flame, Building2, Sparkles, Zap, Users, ExternalLink, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 // Target Date: October 11, 2026, 09:00:00 AM IST
@@ -28,6 +28,7 @@ export const Hero = () => {
   // Accurate Real-Time Countdown Timer state to Oct 11, 2026, 09:00 AM IST
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const [mounted, setMounted] = useState(false);
+  const [showVenueModal, setShowVenueModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -144,26 +145,40 @@ export const Hero = () => {
               </div>
 
               {/* Big High-Definition Glowing Campus Blueprint Artwork */}
-              <div className="relative w-full overflow-hidden rounded-2xl bg-[#040208]/90 p-3 sm:p-5 border border-purple-800/40">
+              <div 
+                onClick={() => setShowVenueModal(true)}
+                title="Click to view Festival Venue details"
+                className="relative w-full overflow-hidden rounded-2xl bg-[#040208]/90 p-3 sm:p-5 border border-purple-800/40 cursor-pointer group/art hover:border-fuchsia-500/70 transition-all duration-300"
+              >
                 {/* Subtle Grid overlay for architectural blueprint feel */}
                 <div className="absolute inset-0 fest-grid-bg opacity-30 pointer-events-none" />
                 
                 <img
                   src="/images/campus-sketch-glow.png"
                   alt="Amrita Vishwa Vidyapeetham, Amaravati Campus"
-                  className="w-full h-auto max-h-[360px] sm:max-h-[420px] object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.85)] group-hover:scale-[1.03] transition-transform duration-500 relative z-10"
+                  className="w-full h-auto max-h-[360px] sm:max-h-[420px] object-contain filter drop-shadow-[0_0_30px_rgba(217,70,239,0.85)] group-hover/art:scale-[1.03] transition-transform duration-500 relative z-10"
                 />
+
+                {/* Subtle hover tooltip hint */}
+                <div className="absolute bottom-2 right-2 z-20 opacity-0 group-hover/art:opacity-100 transition-opacity bg-black/80 border border-fuchsia-500/40 text-[10px] font-mono text-fuchsia-300 px-2 py-0.5 rounded pointer-events-none">
+                  Click to explore venue ↗
+                </div>
               </div>
 
               {/* Bottom Details Strip */}
-              <div className="mt-3.5 px-1 flex items-center justify-between text-xs font-mono text-slate-400">
+              <div className="relative z-30 mt-3.5 px-1 flex items-center justify-between text-xs font-mono text-slate-400 pointer-events-auto">
                 <span className="flex items-center gap-1.5 text-slate-300">
                   <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
                   MAIN ACADEMIC & INNOVATION COMPLEX
                 </span>
-                <span className="text-fuchsia-400 font-bold">
-                  FESTIVAL VENUE
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowVenueModal(true)}
+                  className="relative z-30 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-fuchsia-500/20 hover:bg-fuchsia-500/35 border border-fuchsia-500/50 hover:border-fuchsia-400 text-fuchsia-300 hover:text-white font-bold transition-all text-xs font-mono shadow-[0_0_15px_rgba(217,70,239,0.35)] hover:scale-105 active:scale-95 cursor-pointer pointer-events-auto select-none"
+                >
+                  <span className="pointer-events-none">FESTIVAL VENUE</span>
+                  <ExternalLink className="w-3.5 h-3.5 text-fuchsia-400 pointer-events-none" />
+                </button>
               </div>
 
             </div>
@@ -206,6 +221,72 @@ export const Hero = () => {
         </div>
 
       </div>
+
+      {/* Festival Venue Confirmation Dialog Modal */}
+      {showVenueModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setShowVenueModal(false)}
+        >
+          <div
+            className="relative w-full max-w-md bg-gradient-to-b from-[#130b29] to-[#080413] border border-purple-500/50 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-purple-950/90 space-y-6 text-center animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={() => setShowVenueModal(false)}
+              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+              aria-label="Close dialog"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* Glowing Campus Icon */}
+            <div className="w-16 h-16 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/40 text-fuchsia-400 flex items-center justify-center mx-auto shadow-[0_0_25px_rgba(217,70,239,0.5)]">
+              <Building2 className="w-8 h-8 text-fuchsia-300 animate-pulse" />
+            </div>
+
+            {/* Content */}
+            <div className="space-y-2">
+              <span className="text-[11px] font-mono text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full uppercase tracking-wider font-semibold">
+                Amrita Vishwa Vidyapeetham • Amaravati
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white font-['Pixelify_Sans',_monospace] tracking-wide pt-1">
+                Explore Festival Venue?
+              </h3>
+              <p className="text-sm sm:text-base text-slate-200 font-medium">
+                Do you want to see about festival venues?
+              </p>
+              <p className="text-xs text-slate-400 leading-relaxed max-w-xs mx-auto">
+                You will be redirected to the official Amrita Vishwa Vidyapeetham, Amaravati campus portal in a new tab.
+              </p>
+            </div>
+
+            {/* Action Buttons: No or Yes */}
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowVenueModal(false)}
+                className="w-1/2 py-2.5 px-4 rounded-xl border border-purple-500/30 bg-purple-950/40 hover:bg-purple-900/50 text-slate-300 font-mono text-xs font-semibold transition-all cursor-pointer hover:border-purple-500/50 active:scale-95"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVenueModal(false);
+                  window.open('https://www.amrita.edu/campus/amaravati/', '_blank', 'noopener,noreferrer');
+                }}
+                className="w-1/2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-fuchsia-600 via-pink-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-mono text-xs font-bold shadow-[0_0_20px_rgba(217,70,239,0.5)] hover:shadow-[0_0_30px_rgba(217,70,239,0.8)] transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 active:scale-95"
+              >
+                <span>Yes</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
