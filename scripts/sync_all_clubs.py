@@ -34,6 +34,7 @@ CLUB_SLUG_MAP = {
     "avinya": "avinya",
     "prachurya": "prachurya",
     "saptaswara": "saptaswara",
+    "spataswara": "saptaswara",
     "drsya": "drsya",
 }
 

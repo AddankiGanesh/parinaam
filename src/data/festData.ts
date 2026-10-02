@@ -230,6 +230,33 @@ export const GALLERY_ITEMS: GalleryClubItem[] = [
     imageUrl: '/images/clubs/saptaswara.png',
     logoUrl: '/images/clubs/saptaswara-emblem.png',
     cardUrl: '/images/clubs/saptaswara-card.png',
+    photos: [
+      {
+        url: '/images/clubs/saptaswara/saptaswara-photo-1.jpg',
+        title: 'Open Air Amphitheatre Concert',
+        caption: 'Live collegiate band delivering electrifying fusion guitar solos and drum rhythms under stage floodlights.'
+      },
+      {
+        url: '/images/clubs/saptaswara/saptaswara-photo-2.jpg',
+        title: 'Battle of the Bands Mainstage',
+        caption: 'Lead vocalists and instrumentalists captivating a roaring crowd of festival attendees.'
+      },
+      {
+        url: '/images/clubs/saptaswara/saptaswara-photo-3.jpg',
+        title: 'Acoustic & Unplugged Sessions',
+        caption: 'Intimate acoustic guitar sets, melodious vocals, and keyboard harmonies.'
+      },
+      {
+        url: '/images/clubs/saptaswara/saptaswara-photo-4.jpg',
+        title: 'Carnatic-Western Raga Fusion',
+        caption: 'Mesmerizing musical jugalbandis blending classical ragas with contemporary rock cadence.'
+      },
+      {
+        url: '/images/clubs/saptaswara/saptaswara-photo-5.jpg',
+        title: 'Orchestra & Vocal Ensemble',
+        caption: 'The full musical ensemble performing soul-stirring festive choral anthems.'
+      },
+    ],
     caption: 'Top collegiate rock, metal, and fusion bands headlining an electric evening on the Main Open Air Amphitheatre.',
     description: 'Bringing soulful harmony and roaring decibels to the techfest. Saptaswara curates electric Battle of the Bands clashes, Carnatic-Western jugalbandis, and acoustic vocal open mics.',
     eventsConducted: ['Battle of the Bands', 'Raga Symphony Fusion', 'Acoustic Unplugged Night']
