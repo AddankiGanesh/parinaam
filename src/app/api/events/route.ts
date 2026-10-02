@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
@@ -110,6 +112,45 @@ export async function POST(req: NextRequest) {
     const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
     const eventCode = `${slug}-${rand}`;
 
+    // Helper to convert empty string date/time inputs to null (PostgreSQL throws on "")
+    const normalizeDateOrTime = (val: any): string | null => {
+      if (val === undefined || val === null) return null;
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        return trimmed === '' ? null : trimmed;
+      }
+      return String(val);
+    };
+
+    const parsedDateStart = normalizeDateOrTime(date_start);
+    const parsedDateEnd = normalizeDateOrTime(date_end);
+    const parsedStartTime = normalizeDateOrTime(start_time);
+    const parsedEndTime = normalizeDateOrTime(end_time);
+
+    // Validation rules: Published events require a start date
+    if (status === 'published' && !parsedDateStart) {
+      return error('Event start date is required to publish an event', 400);
+    }
+
+    // Validate and format array parameters
+    // tags is a PostgreSQL TEXT[] array column — pg expects a JS Array (or null)
+    let parsedTags: string[] | null = null;
+    if (tags !== undefined && tags !== null) {
+      if (!Array.isArray(tags)) {
+        return error('Field "tags" must be an array of strings', 400);
+      }
+      parsedTags = tags.filter((t: any) => typeof t === 'string' && t.trim() !== '');
+    }
+
+    // rules, rounds, coordinators are PostgreSQL JSONB columns — pg expects a JSON string
+    if (rules && !Array.isArray(rules)) return error('Field "rules" must be an array', 400);
+    if (rounds && !Array.isArray(rounds)) return error('Field "rounds" must be an array', 400);
+    if (coordinators && !Array.isArray(coordinators)) return error('Field "coordinators" must be an array', 400);
+
+    const parsedRules = JSON.stringify(Array.isArray(rules) ? rules : []);
+    const parsedRounds = JSON.stringify(Array.isArray(rounds) ? rounds : []);
+    const parsedCoordinators = JSON.stringify(Array.isArray(coordinators) ? coordinators : []);
+
     const result = await db.query(
       `INSERT INTO events (
         club_id, created_by, name, event_code, tagline, short_description,
@@ -125,20 +166,20 @@ export async function POST(req: NextRequest) {
       [
         clubId, session.userId, name, eventCode, tagline,
         short_description, full_description, category,
-        tags ? JSON.stringify(tags) : null,
-        venue, date_start, date_end, start_time, end_time, day_number,
+        parsedTags,
+        venue, parsedDateStart, parsedDateEnd, parsedStartTime, parsedEndTime, day_number,
         min_team_size, max_team_size, capacity, fee, prize_pool,
         eligibility,
-        JSON.stringify(rules),
-        JSON.stringify(rounds),
-        JSON.stringify(coordinators),
+        parsedRules,
+        parsedRounds,
+        parsedCoordinators,
         poster_url, rulebook_url, status, registration_open, is_popular
       ]
     );
 
     return success({ event: result.rows[0] }, 201);
-  } catch (err) {
-    console.error('Create event error:', err);
-    return serverError();
+  } catch (err: any) {
+    console.error('Create event error:', err?.message || err);
+    return serverError(err?.message || 'Failed to create event');
   }
 }

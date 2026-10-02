@@ -107,6 +107,11 @@ export default function CreateClubEventPage({
       setActiveSection('basic');
       return;
     }
+    if (publish && !form.date_start.trim()) {
+      setError('Event start date is required to publish an event');
+      setActiveSection('schedule');
+      return;
+    }
     if (!club) {
       setError('Club information missing');
       return;
@@ -117,6 +122,10 @@ export default function CreateClubEventPage({
 
     const payload = {
       ...form,
+      date_start: form.date_start.trim() || null,
+      date_end: form.date_end.trim() || null,
+      start_time: form.start_time.trim() || null,
+      end_time: form.end_time.trim() || null,
       status: publish ? 'published' : form.status,
       registration_open: publish ? true : form.registration_open,
       fee: parseInt(form.fee) || 0,

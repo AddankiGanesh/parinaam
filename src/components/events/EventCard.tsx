@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { FestEvent } from '../../types';
-import { Calendar, Clock, MapPin, Users, Trophy, ChevronRight, Check } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Trophy, ChevronRight, Check, Heart, ShoppingBag } from 'lucide-react';
 import { formatCurrency } from '../../lib/utils';
 import { useFest } from '../../context/FestContext';
+import { useCart } from '../../context/CartContext';
 
 interface EventCardProps {
   event: FestEvent;
@@ -14,7 +15,9 @@ interface EventCardProps {
 
 export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onRegisterQuick }) => {
   const { isEventRegistered } = useFest();
+  const { isInCart, toggleCartItem } = useCart();
   const registered = isEventRegistered(event.id);
+  const inCart = isInCart(event.id);
 
   return (
     <div className="bg-[#0b0716] border border-purple-900/50 rounded-2xl overflow-hidden flex flex-col justify-between hover:border-purple-500/70 transition-all duration-300 group mi-glow-card">
@@ -45,6 +48,22 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onRegiste
           <Trophy className="w-3.5 h-3.5 text-amber-400" />
           <span>{event.prizePool}</span>
         </div>
+
+        {/* "I'm Interested" Heart/Cart Toggle Badge */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleCartItem(event.id);
+          }}
+          className={`absolute bottom-3 right-3 p-2 rounded-xl transition-all border shadow-lg ${
+            inCart
+              ? 'bg-pink-600 text-white border-pink-500 scale-105'
+              : 'bg-black/70 backdrop-blur-sm text-slate-300 border-white/20 hover:text-pink-400 hover:border-pink-500/50'
+          }`}
+          title={inCart ? "In your Interested Cart" : "I'm Interested — Add to Cart"}
+        >
+          <Heart size={15} className={inCart ? 'fill-white' : ''} />
+        </button>
       </div>
 
       {/* Card Content */}
@@ -96,10 +115,24 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onRegiste
             </span>
           ) : (
             <button
-              onClick={() => onRegisterQuick ? onRegisterQuick(event) : onSelect(event)}
-              className="py-2 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition-all shadow-purple-glow"
+              onClick={() => toggleCartItem(event.id)}
+              className={`py-2 px-3.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                inCart
+                  ? 'bg-pink-600/30 text-pink-300 border border-pink-500/50'
+                  : 'bg-purple-600 hover:bg-purple-500 text-white shadow-purple-glow'
+              }`}
             >
-              Register
+              {inCart ? (
+                <>
+                  <Check size={13} />
+                  <span>Interested</span>
+                </>
+              ) : (
+                <>
+                  <Heart size={13} />
+                  <span>I'm Interested</span>
+                </>
+              )}
             </button>
           )}
         </div>
@@ -108,3 +141,4 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect, onRegiste
     </div>
   );
 };
+

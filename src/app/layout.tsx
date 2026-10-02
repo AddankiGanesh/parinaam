@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { FestProvider } from '../context/FestContext';
 import { AuthProvider } from '../context/AuthContext';
+import { CartProvider } from '../context/CartContext';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
+import { ProfileCompletionModal } from '../components/layout/ProfileCompletionModal';
 
 export const metadata: Metadata = {
   title: 'PARINAAM 2026 | Amrita Vishwa Vidyapeetham, Amaravati',
@@ -28,13 +30,17 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[#05030a] text-slate-100 antialiased flex flex-col justify-between selection:bg-purple-600 selection:text-white">
         <AuthProvider>
-          <FestProvider>
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </FestProvider>
+          <CartProvider>
+            <FestProvider>
+              <Navbar />
+              <ProfileCompletionModal />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </FestProvider>
+          </CartProvider>
         </AuthProvider>
       </body>
     </html>
   );
 }
+

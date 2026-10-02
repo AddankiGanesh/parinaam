@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { NextRequest } from 'next/server';
 import { db } from '@/lib/db';
 import { getSessionUser } from '@/lib/auth';
@@ -84,15 +86,34 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const values: unknown[] = [];
     let idx = 1;
 
+    const normalizeDateOrTime = (val: any): string | null => {
+      if (val === undefined || val === null) return null;
+      if (typeof val === 'string') {
+        const trimmed = val.trim();
+        return trimmed === '' ? null : trimmed;
+      }
+      return String(val);
+    };
+
     for (const field of allowedFields) {
       if (field in body) {
         updates.push(`${field} = $${idx}`);
         const val = body[field];
-        values.push(
-          Array.isArray(val) || (typeof val === 'object' && val !== null)
-            ? JSON.stringify(val)
-            : val
-        );
+        if (['date_start', 'date_end', 'start_time', 'end_time'].includes(field)) {
+          const normDate = normalizeDateOrTime(val);
+          if (field === 'date_start' && body.status === 'published' && !normDate) {
+            return error('Event start date is required to publish an event', 400);
+          }
+          values.push(normDate);
+        } else if (field === 'tags') {
+          values.push(Array.isArray(val) ? val.filter((t: any) => typeof t === 'string' && t.trim() !== '') : null);
+        } else if (['rules', 'rounds', 'coordinators'].includes(field)) {
+          values.push(JSON.stringify(Array.isArray(val) ? val : []));
+        } else if (typeof val === 'object' && val !== null) {
+          values.push(JSON.stringify(val));
+        } else {
+          values.push(val);
+        }
         idx++;
       }
     }
