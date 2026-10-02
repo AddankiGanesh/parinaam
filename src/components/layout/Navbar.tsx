@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Menu, X, User, LayoutDashboard, Shield, LogOut, ChevronDown, ShoppingBag } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Menu, X, User, LayoutDashboard, Shield, LogOut, ChevronDown, ShoppingBag, Lock } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { CartDrawer } from '@/components/cart/CartDrawer';
+import { isStudentProfileComplete } from '@/lib/institutionPolicy';
 
 export const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -14,8 +15,21 @@ export const Navbar = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
   const { user, logout } = useAuth();
   const { cartCount } = useCart();
+
+  const isProfileComplete = isStudentProfileComplete(user);
+
+  const handleCartClick = () => {
+    if (user && user.role === 'student' && !isProfileComplete) {
+      alert('Please complete your platform registration profile before accessing the event cart.');
+      router.push('/dashboard/profile');
+      return;
+    }
+    setCartOpen(true);
+  };
+
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -38,6 +52,7 @@ export const Navbar = () => {
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
       : user.role === 'super_admin'
       ? [
@@ -46,18 +61,20 @@ export const Navbar = () => {
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
       : [
           { name: 'CLUB PORTAL', href: `/admin/${user.club_slug || 'chakravyuha'}` },
           { name: 'EVENTS', href: '/events' },
           { name: 'SCHEDULE', href: '/schedule' },
           { name: 'GALLERY', href: '/#gallery' },
+          { name: 'SPONSORS', href: '/#sponsors' },
         ]
     : [
         { name: 'EVENTS', href: '/events' },
         { name: 'SCHEDULE', href: '/schedule' },
         { name: 'GALLERY', href: '/#gallery' },
-        { name: 'SPONSORS', href: '/sponsor' },
+        { name: 'SPONSORS', href: '/#sponsors' },
       ];
 
   const dashboardHref =
@@ -118,11 +135,15 @@ export const Navbar = () => {
             <div className="hidden lg:flex items-center gap-3 shrink-0">
               {/* Cart Button */}
               <button
-                onClick={() => setCartOpen(true)}
+                onClick={handleCartClick}
                 className="relative p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/50 text-slate-300 hover:text-white transition-all flex items-center justify-center"
-                title="Registration Cart"
+                title={user && user.role === 'student' && !isProfileComplete ? "Complete profile to unlock cart" : "Registration Cart"}
               >
-                <ShoppingBag size={18} />
+                {user && user.role === 'student' && !isProfileComplete ? (
+                  <Lock size={18} className="text-amber-400" />
+                ) : (
+                  <ShoppingBag size={18} />
+                )}
                 {cartCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-purple-600 text-white text-[10px] font-bold flex items-center justify-center border-2 border-[#05030a] shadow-fest-brand">
                     {cartCount}
@@ -201,11 +222,15 @@ export const Navbar = () => {
             {/* Mobile toggle */}
             <div className="flex lg:hidden items-center gap-2">
               <button
-                onClick={() => setCartOpen(true)}
+                onClick={handleCartClick}
                 className="relative p-2 rounded-lg bg-white/5 border border-white/10 text-slate-300"
-                title="Registration Cart"
+                title={user && user.role === 'student' && !isProfileComplete ? "Complete profile to unlock cart" : "Registration Cart"}
               >
-                <ShoppingBag size={18} />
+                {user && user.role === 'student' && !isProfileComplete ? (
+                  <Lock size={18} className="text-amber-400" />
+                ) : (
+                  <ShoppingBag size={18} />
+                )}
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-purple-600 text-white text-[9px] font-bold flex items-center justify-center">
                     {cartCount}

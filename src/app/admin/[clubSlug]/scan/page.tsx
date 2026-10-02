@@ -4,13 +4,35 @@ import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { QrCode, CheckCircle, AlertTriangle, XCircle, Users, RefreshCw, ArrowLeft, Camera } from 'lucide-react';
+import { QrCode, CheckCircle, AlertTriangle, XCircle, Users, RefreshCw, ArrowLeft, Camera, UserCheck } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 interface ScanResult {
   status: 'SUCCESS' | 'DUPLICATE' | 'ERROR';
   message: string;
-  student?: { name: string; email: string; college: string };
+  student?: { name: string; email: string; college: string; roll_number?: string };
+}
+
+interface Attendee {
+  registration_id: string;
+  registration_status: string;
+  payment_status: string;
+  team_name?: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  college_name: string;
+  roll_number?: string;
+  phone?: string;
+  attendance_id?: string;
+  checked_in_at?: string;
+}
+
+interface Stats {
+  confirmedCount: number;
+  checkedInCount: number;
+  remainingCount: number;
+  attendancePercentage: number;
 }
 
 export default function ClubQRScannerPage({
@@ -23,12 +45,20 @@ export default function ClubQRScannerPage({
   const router = useRouter();
 
   const [club, setClub] = useState<{ id: string; name: string; slug: string } | null>(null);
-  const [events, setEvents] = useState<{ id: string; name: string }[]>([]);
+  const [events, setEvents] = useState<{ id: string; name: string; venue?: string }[]>([]);
   const [selectedEvent, setSelectedEvent] = useState('');
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [manualToken, setManualToken] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [attendanceCount, setAttendanceCount] = useState(0);
+  
+  const [stats, setStats] = useState<Stats>({
+    confirmedCount: 0,
+    checkedInCount: 0,
+    remainingCount: 0,
+    attendancePercentage: 0,
+  });
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -47,9 +77,11 @@ export default function ClubQRScannerPage({
             return fetch(`/api/events?club_id=${found.id}&limit=100`)
               .then(r => r.json())
               .then(ed => {
-                if (ed.success) {
+                if (ed.success && ed.data.events) {
                   setEvents(ed.data.events);
-                  if (ed.data.events.length > 0) setSelectedEvent(ed.data.events[0].id);
+                  if (ed.data.events.length > 0 && !selectedEvent) {
+                    setSelectedEvent(ed.data.events[0].id);
+                  }
                 }
               });
           }
@@ -57,14 +89,24 @@ export default function ClubQRScannerPage({
       });
   }, [clubSlug, user, authLoading, router]);
 
-  useEffect(() => {
+  const fetchAttendanceData = () => {
     if (!selectedEvent) return;
+    setLoadingData(true);
     fetch(`/api/attendance/scan?event_id=${selectedEvent}`)
       .then(r => r.json())
       .then(d => {
-        if (d.success) setAttendanceCount(d.data.count);
-      });
-  }, [selectedEvent, scanResult]);
+        setLoadingData(false);
+        if (d.success) {
+          setStats(d.data.stats || { confirmedCount: 0, checkedInCount: 0, remainingCount: 0, attendancePercentage: 0 });
+          setAttendees(d.data.attendees || []);
+        }
+      })
+      .catch(() => setLoadingData(false));
+  };
+
+  useEffect(() => {
+    fetchAttendanceData();
+  }, [selectedEvent]);
 
   const processScan = async (token: string) => {
     if (!selectedEvent) {
@@ -76,25 +118,32 @@ export default function ClubQRScannerPage({
     setScanning(true);
     setScanResult(null);
 
-    const res = await fetch('/api/attendance/scan', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ qr_token: token.trim(), event_id: selectedEvent }),
-    });
-    const data = await res.json();
-    setScanning(false);
-
-    if (data.success) {
-      setScanResult({
-        status: data.data.status === 'DUPLICATE' ? 'DUPLICATE' : 'SUCCESS',
-        message: data.data.message,
-        student: data.data.student,
+    try {
+      const res = await fetch('/api/attendance/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ qr_token: token.trim(), event_id: selectedEvent }),
       });
-    } else {
-      setScanResult({ status: 'ERROR', message: data.error || 'Scan failed' });
+      const data = await res.json();
+      setScanning(false);
+
+      if (data.success) {
+        const isDup = Boolean(data.data.duplicate || data.data.status === 'DUPLICATE');
+        setScanResult({
+          status: isDup ? 'DUPLICATE' : 'SUCCESS',
+          message: data.data.message,
+          student: data.data.student,
+        });
+        fetchAttendanceData();
+      } else {
+        setScanResult({ status: 'ERROR', message: data.error || 'Scan failed' });
+      }
+    } catch {
+      setScanning(false);
+      setScanResult({ status: 'ERROR', message: 'Server error processing scan' });
     }
 
-    setTimeout(() => setScanResult(null), 4000);
+    setTimeout(() => setScanResult(null), 5000);
   };
 
   const handleManualSubmit = (e: React.FormEvent) => {
@@ -107,26 +156,26 @@ export default function ClubQRScannerPage({
 
   return (
     <div className="min-h-screen bg-[#05030a] pt-20 pb-16">
-      <div className="max-w-lg mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Top Back Nav */}
         <Link
           href={`/admin/${clubSlug}`}
           className="text-slate-400 hover:text-white text-xs font-semibold flex items-center gap-1 mb-6 transition-colors"
         >
-          <ArrowLeft size={14} /> Back to {club?.name || clubSlug} Admin
+          <ArrowLeft size={14} /> Back to {club?.name || clubSlug} Admin Portal
         </Link>
 
         <div className="text-center mb-6">
           <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center mx-auto mb-3 shadow-lg">
             <QrCode size={26} className="text-purple-400" />
           </div>
-          <h1 className="text-2xl font-bold text-white">{club?.name || clubSlug} Ticket Scanner</h1>
-          <p className="text-slate-400 text-xs mt-1">Scan participant passes at the venue gate for instant check-in</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">{club?.name || clubSlug} Attendance Scanner</h1>
+          <p className="text-slate-400 text-xs mt-1">Scan participant passes and track real-time attendance</p>
         </div>
 
         {/* Event selector */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 mb-4 backdrop-blur-sm">
-          <label className="text-xs text-slate-400 font-semibold block mb-2">Select {club?.name} Event</label>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 sm:p-6 mb-6">
+          <label className="text-xs text-slate-400 font-semibold block mb-2 uppercase tracking-wider">Select {club?.name} Event</label>
           <select
             value={selectedEvent}
             onChange={e => setSelectedEvent(e.target.value)}
@@ -135,20 +184,33 @@ export default function ClubQRScannerPage({
             <option value="">— Choose Event —</option>
             {events.map(ev => (
               <option key={ev.id} value={ev.id} className="bg-slate-900 text-white">
-                {ev.name}
+                {ev.name} {ev.venue ? `(${ev.venue})` : ''}
               </option>
             ))}
           </select>
-
-          {selectedEvent && (
-            <div className="mt-3 flex items-center justify-between text-xs text-slate-400 px-1">
-              <span className="flex items-center gap-1.5">
-                <Users size={13} className="text-purple-400" /> Checked In:
-              </span>
-              <span className="text-emerald-400 font-bold text-sm">{attendanceCount} students</span>
-            </div>
-          )}
         </div>
+
+        {/* Live Attendance Stats Grid */}
+        {selectedEvent && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
+              <p className="text-slate-400 text-xs font-medium">Total Confirmed</p>
+              <p className="text-xl sm:text-2xl font-bold text-white mt-1">{stats.confirmedCount}</p>
+            </div>
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center">
+              <p className="text-emerald-400 text-xs font-medium">Checked In</p>
+              <p className="text-xl sm:text-2xl font-bold text-emerald-300 mt-1">{stats.checkedInCount}</p>
+            </div>
+            <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 text-center">
+              <p className="text-amber-400 text-xs font-medium">Remaining</p>
+              <p className="text-xl sm:text-2xl font-bold text-amber-300 mt-1">{stats.remainingCount}</p>
+            </div>
+            <div className="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 text-center">
+              <p className="text-purple-400 text-xs font-medium">Attendance %</p>
+              <p className="text-xl sm:text-2xl font-bold text-purple-300 mt-1">{stats.attendancePercentage}%</p>
+            </div>
+          </div>
+        )}
 
         {/* Result alert */}
         <AnimatePresence>
@@ -157,25 +219,25 @@ export default function ClubQRScannerPage({
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              className={`mb-4 rounded-2xl p-5 border ${
+              className={`mb-6 rounded-2xl p-5 border shadow-2xl ${
                 scanResult.status === 'SUCCESS'
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
                   : scanResult.status === 'DUPLICATE'
-                  ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
-                  : 'bg-red-500/10 border-red-500/30 text-red-300'
+                  ? 'bg-amber-500/15 border-amber-500/40 text-amber-300'
+                  : 'bg-red-500/15 border-red-500/40 text-red-300'
               }`}
             >
               <div className="flex items-start gap-3">
                 {scanResult.status === 'SUCCESS' && <CheckCircle size={22} className="text-emerald-400 shrink-0 mt-0.5" />}
                 {scanResult.status === 'DUPLICATE' && <AlertTriangle size={22} className="text-amber-400 shrink-0 mt-0.5" />}
                 {scanResult.status === 'ERROR' && <XCircle size={22} className="text-red-400 shrink-0 mt-0.5" />}
-                <div>
-                  <p className="font-bold text-sm">{scanResult.message}</p>
+                <div className="flex-1">
+                  <p className="font-bold text-base">{scanResult.message}</p>
                   {scanResult.student && (
-                    <div className="mt-2 text-xs text-slate-300 space-y-0.5">
+                    <div className="mt-2 text-xs text-slate-300 space-y-1 bg-black/40 p-3 rounded-xl border border-white/10 font-mono">
                       <p>👤 <strong>{scanResult.student.name}</strong></p>
                       <p>📧 {scanResult.student.email}</p>
-                      <p>🏫 {scanResult.student.college}</p>
+                      <p>🏫 {scanResult.student.college} {scanResult.student.roll_number ? `(${scanResult.student.roll_number})` : ''}</p>
                     </div>
                   )}
                 </div>
@@ -185,8 +247,8 @@ export default function ClubQRScannerPage({
         </AnimatePresence>
 
         {/* Scanner Viewfinder Box */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="bg-black rounded-2xl aspect-square max-h-60 flex items-center justify-center mb-5 relative overflow-hidden border border-white/10">
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8">
+          <div className="bg-black rounded-2xl aspect-video max-h-56 flex items-center justify-center mb-5 relative overflow-hidden border border-white/10">
             <div className="text-center p-4">
               <Camera size={36} className="text-purple-400 mx-auto mb-2 opacity-80" />
               <p className="text-slate-300 text-sm font-semibold">Live Camera Ready</p>
@@ -199,7 +261,7 @@ export default function ClubQRScannerPage({
 
           <div className="relative flex items-center gap-3 mb-4">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-slate-500 text-xs">or test token manually</span>
+            <span className="text-slate-500 text-xs uppercase font-mono">or enter QR pass token</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
@@ -209,18 +271,91 @@ export default function ClubQRScannerPage({
               value={manualToken}
               onChange={e => setManualToken(e.target.value)}
               placeholder="Paste QR Token / Code"
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500"
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-purple-500"
             />
             <button
               type="submit"
               disabled={scanning || !manualToken.trim() || !selectedEvent}
-              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-md"
+              className="bg-purple-600 hover:bg-purple-500 disabled:opacity-40 text-white font-bold px-5 py-3 rounded-xl transition-all flex items-center gap-2"
             >
-              {scanning ? <RefreshCw size={16} className="animate-spin" /> : 'Validate'}
+              {scanning ? <RefreshCw size={16} className="animate-spin" /> : <UserCheck size={16} />}
+              <span>Mark Attendance</span>
             </button>
           </form>
-          <p className="text-slate-500 text-[11px] text-center mt-3">Duplicate check-in attempts are prevented automatically</p>
         </div>
+
+        {/* Live Attendee List Table */}
+        {selectedEvent && (
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <Users size={18} className="text-purple-400" />
+                <span>Event Registrations &amp; Check-ins</span>
+              </h3>
+              <button
+                onClick={fetchAttendanceData}
+                className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 font-mono"
+              >
+                <RefreshCw size={12} className={loadingData ? 'animate-spin' : ''} />
+                <span>Refresh</span>
+              </button>
+            </div>
+
+            {attendees.length === 0 ? (
+              <p className="text-slate-500 text-sm text-center py-6">No registrations found for this event yet.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-300">
+                  <thead className="bg-white/5 text-slate-400 font-mono uppercase text-[10px]">
+                    <tr>
+                      <th className="p-3">Student Name</th>
+                      <th className="p-3">Email &amp; College</th>
+                      <th className="p-3">Team</th>
+                      <th className="p-3">Reg. Status</th>
+                      <th className="p-3">Check-in Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {attendees.map(att => (
+                      <tr key={att.registration_id} className="hover:bg-white/5 transition-colors">
+                        <td className="p-3 font-semibold text-white">
+                          {att.full_name}
+                          {att.roll_number && <span className="block text-[10px] text-slate-500 font-mono">{att.roll_number}</span>}
+                        </td>
+                        <td className="p-3">
+                          <p>{att.email}</p>
+                          <p className="text-slate-500 text-[10px]">{att.college_name}</p>
+                        </td>
+                        <td className="p-3 text-slate-400 font-mono">
+                          {att.team_name || 'Individual'}
+                        </td>
+                        <td className="p-3">
+                          <span className={`px-2 py-0.5 rounded-full font-mono font-bold text-[10px] ${
+                            att.registration_status === 'CONFIRMED'
+                              ? 'bg-green-500/20 text-green-300 border border-green-500/30'
+                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          }`}>
+                            {att.registration_status}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          {att.attendance_id ? (
+                            <div className="flex items-center gap-1.5 text-emerald-400 font-mono font-semibold">
+                              <CheckCircle size={14} />
+                              <span>Checked In ({new Date(att.checked_in_at!).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })})</span>
+                            </div>
+                          ) : (
+                            <span className="text-slate-500 font-mono">Not Checked In</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

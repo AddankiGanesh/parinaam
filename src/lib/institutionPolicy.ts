@@ -81,3 +81,35 @@ export function calculatePayableFees(user: FeeUserContext, events: EventFeeItem[
     totalFee,
   };
 }
+
+export interface ProfileUserContext {
+  role?: string;
+  phone?: string | null;
+  college_name?: string | null;
+  department?: string | null;
+  year_of_study?: string | null;
+  is_amrita_student?: boolean | null;
+  id_card_url?: string | null;
+  email?: string | null;
+}
+
+/**
+ * Validates whether a student has completed their platform profile registration.
+ * Required before allowing event registrations or cart access.
+ */
+export function isStudentProfileComplete(user?: ProfileUserContext | null): boolean {
+  if (!user) return false;
+  // Non-student roles (club_admin, super_admin) are not subject to student profile completion
+  if (user.role && user.role !== 'student') return true;
+
+  if (!user.phone || !user.phone.trim()) return false;
+  if (!user.college_name || !user.college_name.trim()) return false;
+  if (!user.department || !user.department.trim()) return false;
+  if (!user.year_of_study || !user.year_of_study.trim()) return false;
+
+  const isAmrita = Boolean(user.is_amrita_student) || isInstitutionalEmail(user.email);
+  if (!isAmrita && (!user.id_card_url || !user.id_card_url.trim())) return false;
+
+  return true;
+}
+
