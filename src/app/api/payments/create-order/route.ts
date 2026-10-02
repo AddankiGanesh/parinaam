@@ -135,12 +135,17 @@ export async function POST(req: NextRequest) {
     const user = userRes.rows[0];
     if (!user) return unauthorized();
 
+    if (session.role !== 'student') {
+      return error('Event registration checkout is restricted to student accounts.', 403);
+    }
+
     if (!isStudentProfileComplete(user)) {
       return error(
         'Platform registration/profile completion is required before registering for events. Please complete your profile in your dashboard first.',
         400,
       );
     }
+
 
     if (user.verification_status !== 'verified') {
       return error(
