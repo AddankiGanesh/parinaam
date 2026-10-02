@@ -24,32 +24,44 @@ export async function POST(req: NextRequest) {
       type,
     } = body;
 
-    const IS_MOCK_RAZORPAY = process.env.MOCK_RAZORPAY === 'true';
+    const isRealRazorpay =
+      !!process.env.RAZORPAY_KEY_ID &&
+      !!process.env.RAZORPAY_KEY_SECRET &&
+      process.env.MOCK_RAZORPAY !== 'true';
+
+    const isMockRazorpay = process.env.MOCK_RAZORPAY === 'true' && !isRealRazorpay;
 
     // =========================================================================
     // Razorpay Signature Verification
     // Performed before any DB state change.
-    // Skipped only when MOCK_RAZORPAY=true is explicitly set.
+    // Skipped only when MOCK_RAZORPAY=true is explicitly set without real keys.
     // =========================================================================
-    if (!IS_MOCK_RAZORPAY && process.env.RAZORPAY_KEY_SECRET) {
+    if (isRealRazorpay) {
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return error('Missing Razorpay payment credentials', 400);
       }
       const generatedBody = `${razorpay_order_id}|${razorpay_payment_id}`;
       const expectedSignature = crypto
-        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET!)
         .update(generatedBody)
         .digest('hex');
-      if (expectedSignature !== razorpay_signature) {
+
+      const expectedBuffer = Buffer.from(expectedSignature, 'utf8');
+      const signatureBuffer = Buffer.from(razorpay_signature, 'utf8');
+
+      if (
+        expectedBuffer.length !== signatureBuffer.length ||
+        !crypto.timingSafeEqual(expectedBuffer, signatureBuffer)
+      ) {
         return error('Payment verification failed — invalid signature', 400);
       }
     }
 
     // Resolved payment and signature values used throughout the function.
-    const payId: string = IS_MOCK_RAZORPAY
+    const payId: string = isMockRazorpay
       ? (razorpay_payment_id ?? `pay_mock_${Date.now()}`)
       : razorpay_payment_id;
-    const sig: string = IS_MOCK_RAZORPAY
+    const sig: string = isMockRazorpay
       ? (razorpay_signature ?? 'mock_signature')
       : razorpay_signature;
 
@@ -122,6 +134,18 @@ export async function POST(req: NextRequest) {
       const paymentRecord = paymentRes.rows[0];
       paymentRecordId = paymentRecord.id;
       rzpOrderIdForReg = paymentRecord.razorpay_order_id;
+
+      // ── Order ID consistency check ──────────────────────────────────────────
+      if (
+        paymentRecord.razorpay_order_id &&
+        razorpay_order_id &&
+        paymentRecord.razorpay_order_id !== razorpay_order_id
+      ) {
+        await client.query('ROLLBACK');
+        client.release();
+        client = null;
+        return error('Payment verification failed — order ID mismatch', 400);
+      }
 
       // ── Idempotency: if already paid, return success without side-effects ──
       if (paymentRecord.status === 'paid') {
@@ -278,7 +302,7 @@ export async function POST(req: NextRequest) {
     // Post-COMMIT: Razorpay refund API call (if all events were overbooked)
     // No DB locks are held here.
     // =========================================================================
-    if (needsRefund && !IS_MOCK_RAZORPAY && process.env.RAZORPAY_KEY_SECRET && razorpay_payment_id) {
+    if (needsRefund && isRealRazorpay && razorpay_payment_id) {
       try {
         const authHeader = Buffer.from(
           `${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`,

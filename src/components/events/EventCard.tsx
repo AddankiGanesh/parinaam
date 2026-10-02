@@ -18,11 +18,10 @@ interface EventCardProps {
 }
 
 export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-  const { isEventRegistered } = useFest();
-  const { isInCart, toggleCartItem } = useCart();
-  const registered = isEventRegistered(event.id);
+  const { isInCart, isConfirmed, toggleCartItem } = useCart();
+  const registered = isConfirmed(event.id);
   const inCart = isInCart(event.id);
 
   const isStudent = user?.role === 'student';
@@ -75,8 +74,8 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
           <span>{event.prizePool}</span>
         </div>
 
-        {/* "I'm Interested" Heart/Cart Toggle Badge — Rendered ONLY for guests and students */}
-        {!isAdmin && (
+        {/* "I'm Interested" Heart/Cart Toggle Badge — Rendered ONLY for non-confirmed guests/students */}
+        {!isAdmin && !registered && (
           <button
             onClick={handleInterestedClick}
             className={`absolute bottom-3 right-3 p-2 rounded-xl transition-all border shadow-lg ${
@@ -137,7 +136,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
             registered ? (
               <span className="py-2 px-3 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold font-mono flex items-center gap-1">
                 <Check className="w-3.5 h-3.5" />
-                <span>Joined</span>
+                <span>You're registered!</span>
               </span>
             ) : (
               <button
@@ -151,7 +150,7 @@ export const EventCard: React.FC<EventCardProps> = ({ event, onSelect }) => {
                 {inCart && isStudent ? (
                   <>
                     <Check size={13} />
-                    <span>Interested</span>
+                    <span>✓ Interested</span>
                   </>
                 ) : (
                   <>
