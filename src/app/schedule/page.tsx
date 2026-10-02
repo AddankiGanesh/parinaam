@@ -37,8 +37,14 @@ export default function SchedulePage() {
             prizePool: e.prize_pool || 'Prizes',
             day: e.day_number === 2 ? 2 : 1,
           }));
+          // Sort by day number, then by start time chronologically
+          mapped.sort((a, b) => {
+            if (a.day !== b.day) return a.day - b.day;
+            return (a.startTime || '').localeCompare(b.startTime || '');
+          });
           setEvents(mapped);
         }
+
       })
       .catch(err => console.error('Failed to load schedule events:', err))
       .finally(() => setLoading(false));

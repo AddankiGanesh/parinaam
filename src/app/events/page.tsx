@@ -196,8 +196,9 @@ export default function EventsPage() {
             Festival Events &amp; Hackathons
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl font-sans leading-relaxed">
-            Explore 14+ national flagship competitions spanning cyber hackathons, AI swarms, full-metal robotics battles, live rock showdowns, and campus esports across our 12 university club houses.
+            Explore national flagship competitions spanning cyber hackathons, AI swarms, robotics battles, live rock showdowns, and campus esports across our 12 university club houses.
           </p>
+
         </div>
 
         {/* Search, Sort, Day & Fee Controls */}
