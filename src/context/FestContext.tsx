@@ -109,13 +109,9 @@ export const FestProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setPass(JSON.parse(storedPass));
         setRegistrations(storedRegs ? JSON.parse(storedRegs) : []);
       } else {
-        // Load default seed
-        setParticipant(INITIAL_DEMO_PARTICIPANT);
-        setPass(INITIAL_DEMO_PASS);
-        setRegistrations(INITIAL_DEMO_REGISTRATIONS);
-        
-        // Seed initial database store
-        seedRecordInDatabase(INITIAL_DEMO_PARTICIPANT, INITIAL_DEMO_PASS, INITIAL_DEMO_REGISTRATIONS);
+        setParticipant(null);
+        setPass(null);
+        setRegistrations([]);
       }
 
       if (storedCheckIns) {

@@ -1,15 +1,47 @@
 'use client';
 
-import React, { use } from 'react';
-import { useFest } from '../../../context/FestContext';
-import { CheckCircle2, ShieldAlert, ShieldCheck, User, Building, Calendar, Ticket, ArrowLeft } from 'lucide-react';
+import React, { use, useState, useEffect } from 'react';
+import { CheckCircle2, ShieldAlert, ShieldCheck, User, Building, Calendar, Ticket, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+
+interface VerifiedRecord {
+  participant: {
+    name: string;
+    email: string;
+    phone: string;
+    college: string;
+    department: string;
+    year: string;
+    participantId: string;
+  };
+  pass: {
+    status: string;
+    passType: string;
+  };
+  registrations: { id: string; eventName: string; clubName: string }[];
+}
 
 export default function VerifyTokenPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
-  const { getRegistrationByToken } = useFest();
+  const [record, setRecord] = useState<VerifiedRecord | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const record = getRegistrationByToken(token);
+  useEffect(() => {
+    fetch(`/api/verify/${token}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setRecord(data.data);
+        } else {
+          setRecord(null);
+        }
+      })
+      .catch(err => {
+        console.error('Verification fetch error:', err);
+        setRecord(null);
+      })
+      .finally(() => setLoading(false));
+  }, [token]);
 
   const maskEmail = (email: string) => {
     const [name, domain] = email.split('@');
@@ -21,6 +53,15 @@ export default function VerifyTokenPage({ params }: { params: Promise<{ token: s
     if (phone.length < 10) return '***';
     return `${phone.slice(0, 6)}****${phone.slice(-2)}`;
   };
+
+  if (loading) {
+    return (
+      <div className="pt-28 pb-20 px-4 flex flex-col items-center justify-center text-purple-400 gap-3">
+        <Loader2 size={32} className="animate-spin" />
+        <p className="text-xs font-mono text-slate-400">Verifying Pass Authority Token...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="pt-28 pb-20 px-4 sm:px-6 max-w-xl mx-auto space-y-6">
