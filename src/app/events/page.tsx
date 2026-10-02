@@ -6,6 +6,7 @@ import { Search, Filter, X, Loader2, Calendar, Users, IndianRupee, Trophy, Chevr
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { isStudentProfileComplete } from '@/lib/institutionPolicy';
 
 interface Club { id: string; name: string; slug: string; color: string; event_count: string; }
 interface Event {
@@ -186,8 +187,20 @@ function EventCard({ event, index, user }: { event: Event; index: number; user: 
   const almostFull = spotsLeft !== null && spotsLeft < 20 && spotsLeft > 0;
   const isFull = spotsLeft !== null && spotsLeft <= 0;
 
-  const handleRegister = () => {
-    if (!user) { router.push(`/auth/register`); return; }
+  const isAdmin = user?.role === 'club_admin' || user?.role === 'super_admin';
+  const isStudent = user?.role === 'student';
+  const isProfileComplete = isStudentProfileComplete(user);
+
+  const handleInterestedClick = () => {
+    if (!user) {
+      router.push('/auth/login?redirect=/events');
+      return;
+    }
+    if (isStudent && !isProfileComplete) {
+      alert('Please complete your platform registration profile before choosing events.');
+      router.push('/dashboard/profile');
+      return;
+    }
     router.push(`/events/${event.id}`);
   };
 
@@ -269,18 +282,21 @@ function EventCard({ event, index, user }: { event: Event; index: number; user: 
             className="flex-1 text-center text-sm font-semibold py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all">
             Details
           </Link>
-          <button
-            onClick={handleRegister}
-            disabled={isFull || !event.registration_open}
-            className={`flex-1 text-center text-sm font-semibold py-2 rounded-xl transition-all ${
-              isFull || !event.registration_open
-                ? 'bg-white/5 text-slate-600 cursor-not-allowed'
-                : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-900/20'
-            }`}>
-            {isFull ? 'Full' : !event.registration_open ? 'Closed' : "I'm Interested"}
-          </button>
+          {!isAdmin && (
+            <button
+              onClick={handleInterestedClick}
+              disabled={isFull || !event.registration_open}
+              className={`flex-1 text-center text-sm font-semibold py-2 rounded-xl transition-all ${
+                isFull || !event.registration_open
+                  ? 'bg-white/5 text-slate-600 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-900/20'
+              }`}>
+              {isFull ? 'Full' : !event.registration_open ? 'Closed' : "I'm Interested"}
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
   );
+
 }
